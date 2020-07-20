@@ -1,0 +1,23 @@
+language: python
+
+jobs:
+  include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
+
+    - python: 3.7
+      dist: bionic
+      sudo: true
+
+install:
+  - ./install_deps.sh cpu
+
+script:
+  - python setup.py test
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
+notifications:
+  email: false

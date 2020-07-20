@@ -1,0 +1,25 @@
+# Jetbrains IDEs
+.idea
+
+# VIM
+*.swp
+
+# C++ build artifacts
+build
+cmake-build-debug
+bin
+*.so
+
+# Python build artifacts
+__pycache__
+*.pyc
+
+# Python package artifacts
+dist
+*.egg-info
+.eggs
+
+# Pytest runtime artifacts
+.coverage
+coverage.xml
+htmlcov
