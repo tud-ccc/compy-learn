@@ -7,7 +7,6 @@
 #include "clang/Lex/PreprocessorOptions.h"
 #include "llvm/LinkAllPasses.h"
 #include "llvm/Support/Compiler.h"
-#include "polly/ScopDetection.h"
 #include "llvm_graph_pass.h"
 #include "llvm_seq_pass.h"
 
@@ -25,9 +24,6 @@ graph::ExtractionInfoPtr LLVMIRExtractor::GraphFromString(std::string src) {
   std::vector<::llvm::Pass *> passes;
 
   passes.push_back(createStripSymbolsPass());
-
-  polly::ScopDetectionWrapperPass* pollyPass = new polly::ScopDetectionWrapperPass();
-  passes.push_back(pollyPass);
 
   graph::ExtractorPass* extractorPass = new graph::ExtractorPass();
   passes.push_back(extractorPass);
