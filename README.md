@@ -3,7 +3,7 @@
 </p>
 
 # ComPy-Learn
-[![Build Status](https://travis-ci.com/alexanderb14/compy-learn.svg?token=Lum2bkerAR5BTxUJcYpE&branch=master)](https://travis-ci.com/alexanderb14/compy-learn)
+[![Build Status](https://travis-ci.com/tud-ccc/compy-learn.svg?branch=master)](https://travis-ci.com/alexanderb14/compy-learn)
 [![codecov](https://codecov.io/gh/alexanderb14/compy-learn/branch/master/graph/badge.svg?token=VL9HQOVVJW)](https://codecov.io/gh/alexanderb14/compy-learn)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
