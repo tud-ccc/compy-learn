@@ -40,8 +40,11 @@ class Model(object):
                 for i in range((len(data_valid) + batch_size - 1) // batch_size)
             ]
 
+            valid_count = 0
             for batch in batches:
-                valid_accuracy, _ = self._predict_with_batch(batch)
+                batch_accuracy, _ = self._predict_with_batch(batch)
+                valid_count += batch_accuracy * len(batch)
+            valid_accuracy = valid_count / len(data_valid)
 
             # Logging
             instances_per_sec = len(data_train) / (end_time - start_time)
