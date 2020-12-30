@@ -19,13 +19,18 @@ function install_system_packages {
 function install_python_packages {
   CUDA=$1
 
-  pip install torch==1.5.0+${CUDA} -f https://download.pytorch.org/whl/torch_stable.html
-  pip install torch-scatter==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html
-  pip install torch-sparse==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html
-  pip install torch-cluster==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html
-  pip install torch-spline-conv==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html
-  pip install dgl
-  pip install tensorflow==2.2.0
+  python3 -m pip install torch==1.5.0+${CUDA} -f https://download.pytorch.org/whl/torch_stable.html
+  python3 -m pip install torchvision==0.6.0
+  python3 -m pip install torch-scatter==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html
+  python3 -m pip install torch-sparse==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html
+  python3 -m pip install torch-cluster==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html
+  python3 -m pip install torch-spline-conv==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html
+  if [[ "$CUDA" != "cpu" ]]; then
+    python3 -m pip install dgl-$CUDA
+  else
+    python3 -m pip install dgl
+  fi
+  python3 -m pip install tensorflow==2.2.0
 }
 
 
@@ -37,7 +42,9 @@ fi
 
 if [[ $(lsb_release -rs) == "16.04" ]] || [[ $(lsb_release -rs) == "18.04" ]]; then
   echo "OS supported."
-  add_llvm_10_apt_source $(lsb_release -rs)
+  if ! grep -q 'llvm-toolchain-.*-10' /etc/apt/sources.list; then
+    add_llvm_10_apt_source $(lsb_release -rs)
+  fi
 elif [[ $(lsb_release -rs) == "20.04" ]]; then
   echo "OS supported."
 else
