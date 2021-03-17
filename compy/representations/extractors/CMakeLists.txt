@@ -40,11 +40,18 @@ target_include_directories(extractors_common PUBLIC
 if(LLVM_LINK_LLVM_DYLIB)
         set(REQ_LLVM_LIBRARIES LLVM)
 endif()
+
+# if clang is built as a shared lib, use that, otherwise link to the static components
+if(DEFINED CLANG_LINK_CLANG_DYLIB AND CLANG_LINK_CLANG_DYLIB)
+	set(REQ_CLANG_LIBRARIES clang-cpp)
+else()
+        set(REQ_CLANG_LIBRARIES clangBasic clangFrontendTool)
+endif()
+
 target_link_libraries(extractors_common
         -Wl,--start-group
         ${REQ_LLVM_LIBRARIES}
-        clangBasic
-        clangFrontendTool
+        ${REQ_CLANG_LIBRARIES}
         -Wl,--end-group
         )
 target_compile_options(extractors_common PRIVATE
