@@ -34,6 +34,12 @@ target_include_directories(extractors_common PUBLIC
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}
         )
+
+# if tools are linked against llvm shared object, we need to do the same
+# otherwise, we end up with two versions (shared and static) of llvm libs
+if(LLVM_LINK_LLVM_DYLIB)
+        set(REQ_LLVM_LIBRARIES LLVM)
+endif()
 target_link_libraries(extractors_common
         -Wl,--start-group
         ${REQ_LLVM_LIBRARIES}

@@ -2,15 +2,9 @@ cmake_minimum_required(VERSION 3.12)
 project(gnns4code_native)
 
 set(CMAKE_CXX_STANDARD 14)
-set(Clang_DIR /usr/lib/llvm-10/lib/cmake/clang)
 
 find_package(LLVM 10)
-find_package(Clang)
-
-set_target_properties(LLVM PROPERTIES
-    IMPORTED_LINK_INTERFACE_LANGUAGES_RELWITHDEBINFO "C;CXX"
-    IMPORTED_LOCATION_RELWITHDEBINFO "-lpthread"
-)
+find_package(Clang PATHS /usr/lib/llvm-10/lib/cmake/clang)
 
 include(FetchContent)
 
