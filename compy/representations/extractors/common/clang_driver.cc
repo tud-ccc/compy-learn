@@ -111,7 +111,7 @@ void ClangDriver::Invoke(std::string src, std::vector<::clang::FrontendAction *>
     args.push_back(optimizationLevelChr);
 
     // Additional flags.
-    for (auto flag : compilerFlags_) {
+    for (auto&& flag : compilerFlags_) {
         args.push_back(flag.c_str());
     }
 
