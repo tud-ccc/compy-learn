@@ -4,7 +4,9 @@ project(gnns4code_native)
 set(CMAKE_CXX_STANDARD 14)
 
 find_package(LLVM 10)
-find_package(Clang PATHS /usr/lib/llvm-10/lib/cmake/clang)
+
+# prefer Clang matching LLVM
+find_package(Clang HINTS "${LLVM_CMAKE_DIR}/../clang")
 
 include(FetchContent)
 
