@@ -53,10 +53,21 @@ ClangDriver::ClangDriver(
     OptimizationLevel optimizationLevel,
     std::vector<std::tuple<std::string, IncludeDirType>> includeDirs,
     std::vector<std::string> compilerFlags)
-    : programmingLanguage_(programmingLanguage),
-      optimizationLevel_(optimizationLevel),
+    : optimizationLevel_(optimizationLevel),
       includeDirs_(includeDirs),
-      compilerFlags_(compilerFlags) {}
+      compilerFlags_(compilerFlags) {
+  switch (programmingLanguage) {
+    case ProgrammingLanguage::C:
+      fileName_ = "program.c";
+      break;
+    case ProgrammingLanguage::CPLUSPLUS:
+      fileName_ = "program.cc";
+      break;
+    case ProgrammingLanguage::OPENCL:
+      fileName_ = "program.cl";
+      break;
+  }
+}
 
 void ClangDriver::addIncludeDir(std::string includeDir,
                                 IncludeDirType includeDirType) {
@@ -75,21 +86,17 @@ void ClangDriver::setOptimizationLevel(OptimizationLevel optimizationLevel) {
   optimizationLevel_ = optimizationLevel;
 }
 
+void ClangDriver::setFileName(std::string fileName) {
+  fileName_ = std::move(fileName);
+}
+
+std::string ClangDriver::getFileName() const { return fileName_; }
+
 void ClangDriver::Invoke(std::string src,
                          std::vector<::clang::FrontendAction *> frontendActions,
                          std::vector<::llvm::Pass *> passes) {
-  const char *filename;
-  switch (programmingLanguage_) {
-    case ProgrammingLanguage::C:
-      filename = "program.c";
-      break;
-    case ProgrammingLanguage::CPLUSPLUS:
-      filename = "program.cc";
-      break;
-    case ProgrammingLanguage::OPENCL:
-      filename = "program.cl";
-      break;
-  }
+  const char *filename = fileName_.c_str();
+
   auto code = src.c_str();
 
   std::vector<const char *> args;
@@ -183,7 +190,6 @@ void ClangDriver::Invoke(std::string src,
                                                 E = DiagsBuffer->err_end();
            I != E; ++I)
         std::cout << "# " << I->second << '\n';
-
       throw std::runtime_error("Failed compiling to execute frontend action");
     }
   }

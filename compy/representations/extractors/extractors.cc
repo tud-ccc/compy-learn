@@ -81,7 +81,9 @@ void registerClangDriver(py::module m) {
                     std::vector<std::tuple<std::string, CD::IncludeDirType>>,
                     std::vector<std::string>>())
       .def("addIncludeDir", &CD::addIncludeDir)
-      .def("removeIncludeDir", &CD::removeIncludeDir);
+      .def("removeIncludeDir", &CD::removeIncludeDir)
+      .def("getFileName", &CD::getFileName)
+      .def("setFileName", &CD::setFileName);
 
   py::enum_<CD::ProgrammingLanguage>(clangDriver, "ProgrammingLanguage")
       .value("C", CD::ProgrammingLanguage::C)
