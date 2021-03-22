@@ -1,5 +1,6 @@
 import networkx as nx
 
+from compy.representations.extractors import clang_driver_scoped_options
 from compy.representations.extractors.extractors import Visitor
 from compy.representations.extractors.extractors import ClangDriver
 from compy.representations.extractors.extractors import ClangExtractor
@@ -118,18 +119,9 @@ class ASTGraphBuilder(common.RepresentationBuilder):
 
         self.__graphs = []
 
-    def string_to_info(self, src, additional_include_dir=None):
-        if additional_include_dir:
-            self.__clang_driver.addIncludeDir(
-                additional_include_dir, ClangDriver.IncludeDirType.User
-            )
-        info = self.__extractor.GraphFromString(src)
-        if additional_include_dir:
-            self.__clang_driver.removeIncludeDir(
-                additional_include_dir, ClangDriver.IncludeDirType.User
-            )
-
-        return info
+    def string_to_info(self, src, additional_include_dir=None, filename=None):
+        with clang_driver_scoped_options(self.__clang_driver, additional_include_dir=additional_include_dir, filename=filename):
+            return self.__extractor.GraphFromString(src)
 
     def info_to_representation(self, info, visitor=ASTDataVisitor):
         vis = visitor()
