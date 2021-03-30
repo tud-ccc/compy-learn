@@ -3,8 +3,8 @@
 </p>
 
 # ComPy-Learn
-[![Build Status](https://travis-ci.com/tud-ccc/compy-learn.svg?branch=master)](https://travis-ci.com/alexanderb14/compy-learn)
-[![codecov](https://codecov.io/gh/tud-ccc/compy-learn/branch/master/graph/badge.svg)](https://codecov.io/gh/alexanderb14/compy-learn)
+[![Build Status](https://travis-ci.com/tud-ccc/compy-learn.svg?branch=master)](https://travis-ci.com/tud-ccc/compy-learn)
+[![codecov](https://codecov.io/gh/tud-ccc/compy-learn/branch/master/graph/badge.svg)](https://codecov.io/gh/tud-ccc/compy-learn)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ComPy-Learn is a framework for defining and exploring program representations for machine learning on source code (ML4CODE) tasks.
@@ -63,4 +63,4 @@ An example exploration is located in `examples/devmap_exploration.py`.
 
 
 ## Publications
-* Brauckmann, Alexander, et al. "ComPy-Learn: A Toolbox for Exploring Machine Learning Representations for Compilers." (to appear). 2020 Forum for Specification and Design Languages (FDL). IEEE, 2020.
+* [Brauckmann, Alexander, et al. "ComPy-Learn: A Toolbox for Exploring Machine Learning Representations for Compilers."](https://ieeexplore.ieee.org/document/9232946) 2020 Forum for Specification and Design Languages (FDL). IEEE, 2020.
