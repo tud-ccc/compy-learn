@@ -83,7 +83,9 @@ void registerClangDriver(py::module m) {
       .def("addIncludeDir", &CD::addIncludeDir)
       .def("removeIncludeDir", &CD::removeIncludeDir)
       .def("getFileName", &CD::getFileName)
-      .def("setFileName", &CD::setFileName);
+      .def("setFileName", &CD::setFileName)
+      .def("getCompilerBinary", &CD::getCompilerBinary)
+      .def("setCompilerBinary", &CD::setCompilerBinary);
 
   py::enum_<CD::ProgrammingLanguage>(clangDriver, "ProgrammingLanguage")
       .value("C", CD::ProgrammingLanguage::C)
@@ -256,6 +258,8 @@ void registerLLVMExtractor(py::module m_parent) {
 }
 
 PYBIND11_MODULE(extractors, m) {
+  m.attr("LLVM_VERSION") = LLVM_VERSION_STRING;
+
   py::class_<IVisitor, PyVisitor>(m, "Visitor").def(py::init<>());
 
   registerClangDriver(m);

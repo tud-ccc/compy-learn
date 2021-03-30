@@ -38,6 +38,8 @@ class ClangDriver {
   void setOptimizationLevel(OptimizationLevel optimizationLevel);
   void setFileName(std::string fileName);
   std::string getFileName() const;
+  void setCompilerBinary(std::string path);
+  std::string getCompilerBinary() const;
 
   void Invoke(std::string src,
               std::vector<::clang::FrontendAction *> frontendActions,
@@ -50,6 +52,7 @@ class ClangDriver {
   std::vector<std::tuple<std::string, IncludeDirType>> includeDirs_;
   std::vector<std::string> compilerFlags_;
   std::string fileName_;
+  std::string compilerBinary_;
 };
 using ClangDriverPtr = std::shared_ptr<ClangDriver>;
 
