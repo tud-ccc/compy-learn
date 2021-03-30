@@ -26,7 +26,7 @@ std::string llvmTypeToString(Type *type) {
  * based on the default name.
  */
 std::string FunctionInfoPass::getUniqueName(const Value &v) {
-  if (v.hasName()) return v.getName();
+  if (v.hasName()) return v.getName().str();
 
   auto iter = valueNames.find(&v);
   if (iter != valueNames.end()) return iter->second;

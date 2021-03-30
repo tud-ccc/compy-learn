@@ -44,7 +44,7 @@ bool ExtractorPass::runOnModule(::llvm::Module &module) {
       // Skip for functions without definition (fwd declarations)
       if (kv.second->getFunction()) {
         info->callGraphInfo->calls.push_back(
-            kv.second->getFunction()->getName());
+            kv.second->getFunction()->getName().str());
       }
     }
   }
