@@ -3,8 +3,8 @@
 </p>
 
 # ComPy-Learn
-[![Build Status](https://travis-ci.com/tud-ccc/compy-learn.svg?branch=master)](https://travis-ci.com/alexanderb14/compy-learn)
-[![codecov](https://codecov.io/gh/tud-ccc/compy-learn/branch/master/graph/badge.svg)](https://codecov.io/gh/alexanderb14/compy-learn)
+[![Build Status](https://travis-ci.com/tud-ccc/compy-learn.svg?branch=master)](https://travis-ci.com/tud-ccc/compy-learn)
+[![codecov](https://codecov.io/gh/tud-ccc/compy-learn/branch/master/graph/badge.svg)](https://codecov.io/gh/tud-ccc/compy-learn)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ComPy-Learn is a framework for defining and exploring program representations for machine learning on source code (ML4CODE) tasks.
