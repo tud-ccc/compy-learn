@@ -63,4 +63,4 @@ An example exploration is located in `examples/devmap_exploration.py`.
 
 
 ## Publications
-* Brauckmann, Alexander, et al. "ComPy-Learn: A Toolbox for Exploring Machine Learning Representations for Compilers." (to appear). 2020 Forum for Specification and Design Languages (FDL). IEEE, 2020.
+* [Brauckmann, Alexander, et al. "ComPy-Learn: A Toolbox for Exploring Machine Learning Representations for Compilers."](https://ieeexplore.ieee.org/document/9232946) 2020 Forum for Specification and Design Languages (FDL). IEEE, 2020.
