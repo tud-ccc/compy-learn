@@ -7,6 +7,7 @@ import warnings
 from typing import Optional
 
 from .extractors import ClangDriver, LLVM_VERSION
+del extractors # HACK: don't override extractors
 
 
 @functools.lru_cache()
