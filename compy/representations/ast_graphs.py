@@ -66,7 +66,7 @@ def add_token_ast_edges(g: nx.MultiDiGraph, node):
     """Add edges with attr `token` connecting tokens to the closest AST node covering them"""
     if hasattr(node, 'tokens'):
         for token in node.tokens:
-            g.add_node(token, attr=token.name)
+            g.add_node(token, attr=token.name, seq_order=token.index)
             g.add_edge(token, node, attr="token")
 
 
@@ -101,6 +101,19 @@ class ASTDataCFGVisitor(Visitor):
         add_ast_edges(self.G, v)
         add_ref_edges(self.G, v)
         add_cfg_edges(self.G, v)
+
+
+class ASTDataCFGTokenVisitor(Visitor):
+    def __init__(self):
+        Visitor.__init__(self)
+        self.edge_types = ["ast", "cfg", "in", "data", "token"]
+        self.G = nx.MultiDiGraph()
+
+    def visit(self, v):
+        add_ast_edges(self.G, v)
+        add_ref_edges(self.G, v)
+        add_cfg_edges(self.G, v)
+        add_token_ast_edges(self.G, v)
 
 
 class ASTGraphBuilder(common.RepresentationBuilder):

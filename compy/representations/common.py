@@ -120,6 +120,17 @@ class Graph(object):
 
         return edges
 
+    def get_leaf_node_list(self):
+        """Return an ordered list of node indices for leaves of the graph.
+
+        Only applicable for graphs that are built based on a sequence (like ASTs on tokens
+        """
+        nodes_keys = list(self._get_node_attr_dict().keys())
+
+        data = { n: order for n, order in self.G.nodes(data='seq_order') if order is not None }
+        return [nodes_keys.index(n) for n, _ in sorted(data.items(), key=lambda x: x[1])]
+
+
     def size(self):
         return len(self.G)
 
