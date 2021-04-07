@@ -67,6 +67,15 @@ using FunctionInfoPtr = std::shared_ptr<FunctionInfo>;
 struct ExtractionInfo;
 using ExtractionInfoPtr = std::shared_ptr<ExtractionInfo>;
 
+struct TokenInfo : IVisitee {
+  std::uint64_t index;
+  std::string name;
+  std::string kind;
+  ::clang::SourceLocation location;
+
+  void accept(IVisitor* v) override { v->visit(this); }
+};
+
 struct OperandInfo : IVisitee {
   virtual ~OperandInfo() = default;
 };
@@ -74,18 +83,24 @@ struct OperandInfo : IVisitee {
 struct DeclInfo : OperandInfo {
   std::string name;
   std::string type;
+  std::vector<TokenInfo> tokens;
 
-  void accept(IVisitor* v) override { v->visit(this); }
+  void accept(IVisitor* v) override {
+    v->visit(this);
+    for (auto& it : tokens) it.accept(v);
+  }
 };
 
 struct StmtInfo : OperandInfo {
   std::string name;
+  std::vector<TokenInfo> tokens;
   std::string operation;
   std::vector<OperandInfoPtr> ast_relations;
   std::vector<OperandInfoPtr> ref_relations;
 
   void accept(IVisitor* v) override {
     v->visit(this);
+    for (auto& it : tokens) it.accept(v);
     for (const auto& it : ast_relations) it->accept(v);
   }
 };
@@ -99,12 +114,14 @@ struct CFGBlockInfo {
 struct FunctionInfo : IVisitee {
   std::string name;
   std::string type;
+  std::vector<TokenInfo> tokens;
   std::vector<DeclInfoPtr> args;
   std::vector<CFGBlockInfoPtr> cfgBlocks;
   StmtInfoPtr entryStmt;
 
   void accept(IVisitor* v) override {
     v->visit(this);
+    for (auto& it : tokens) it.accept(v);
     for (const auto& it : args) it->accept(v);
     entryStmt->accept(v);
   }

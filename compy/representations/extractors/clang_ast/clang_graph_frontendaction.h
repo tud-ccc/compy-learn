@@ -17,15 +17,45 @@ namespace compy {
 namespace clang {
 namespace graph {
 
+/**
+ * Keeps a queue of tokens that are not assigned to any AST-Graph node yet
+ */
+class TokenQueue {
+ public:
+  TokenQueue(::clang::Preprocessor &pp) : pp_(pp) {
+    pp_.setTokenWatcher([this](auto token) { this->addToken(token); });
+  }
+
+  TokenQueue(TokenQueue const &) = delete;
+  TokenQueue &operator=(TokenQueue const &) = delete;
+
+  ~TokenQueue() { pp_.setTokenWatcher(nullptr); }
+
+  std::vector<TokenInfo> popTokensForRange(::clang::SourceRange range);
+
+ private:
+  void addToken(::clang::Token token);
+
+  ::clang::Preprocessor &pp_;
+  std::vector<TokenInfo> tokens_;
+  std::uint64_t nextIndex = 0;
+};
+
 class ExtractorASTVisitor
     : public ::clang::RecursiveASTVisitor<ExtractorASTVisitor> {
  public:
   ExtractorASTVisitor(::clang::ASTContext &context,
-                      ExtractionInfoPtr extractionInfo)
-      : context_(context), extractionInfo_(extractionInfo) {}
+                      ExtractionInfoPtr extractionInfo, TokenQueue &tokenQueue)
+      : context_(context),
+        extractionInfo_(extractionInfo),
+        tokenQueue_(tokenQueue) {}
 
   bool VisitStmt(::clang::Stmt *s);
   bool VisitFunctionDecl(::clang::FunctionDecl *f);
+
+  // postorder traversal is necessary so that tokens get assigned to
+  // nodes closer to the leaves first
+  bool shouldTraversePostOrder() const { return true; }
 
  private:
   FunctionInfoPtr getInfo(const ::clang::FunctionDecl &func);
@@ -36,6 +66,7 @@ class ExtractorASTVisitor
  private:
   ::clang::ASTContext &context_;
   ExtractionInfoPtr extractionInfo_;
+  TokenQueue &tokenQueue_;
 
   std::unordered_map<const ::clang::Stmt *, StmtInfoPtr> stmtInfos_;
   std::unordered_map<const ::clang::CFGBlock *, CFGBlockInfoPtr> cfgBlockInfos_;
@@ -44,13 +75,14 @@ class ExtractorASTVisitor
 
 class ExtractorASTConsumer : public ::clang::ASTConsumer {
  public:
-  ExtractorASTConsumer(::clang::ASTContext &context,
+  ExtractorASTConsumer(::clang::CompilerInstance &CI,
                        ExtractionInfoPtr extractionInfo);
 
   bool HandleTopLevelDecl(::clang::DeclGroupRef DR) override;
 
  private:
   ExtractorASTVisitor visitor_;
+  TokenQueue tokenQueue_;
 };
 
 class ExtractorFrontendAction : public ::clang::ASTFrontendAction {

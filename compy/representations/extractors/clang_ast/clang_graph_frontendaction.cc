@@ -1,5 +1,6 @@
 #include "clang_graph_frontendaction.h"
 
+#include <exception>
 #include <iostream>
 #include <utility>
 
@@ -39,6 +40,8 @@ bool ExtractorASTVisitor::VisitFunctionDecl(FunctionDecl *f) {
   // Only proceed on function definitions, not declarations. Otherwise, all
   // function declarations in headers are traversed also.
   if (!f->hasBody() || !f->getDeclName().isIdentifier()) {
+    // throw away the tokens
+    tokenQueue_.popTokensForRange(f->getSourceRange());
     return true;
   }
 
@@ -112,6 +115,10 @@ FunctionInfoPtr ExtractorASTVisitor::getInfo(const FunctionDecl &func) {
   // Collect type.
   info->type = func.getType().getAsString();
 
+  // Collect tokens
+  info->tokens = tokenQueue_.popTokensForRange(func.getSourceRange());
+  ;
+
   return info;
 }
 
@@ -129,6 +136,9 @@ StmtInfoPtr ExtractorASTVisitor::getInfo(const Stmt &stmt) {
   if (const DeclRefExpr *de = dyn_cast<DeclRefExpr>(&stmt)) {
     info->ref_relations.push_back(getInfo(*de->getDecl()));
   }
+
+  // Collect tokens
+  info->tokens = tokenQueue_.popTokensForRange(stmt.getSourceRange());
 
   return info;
 }
@@ -150,12 +160,16 @@ DeclInfoPtr ExtractorASTVisitor::getInfo(const Decl &decl) {
     info->type = vd->getType().getAsString();
   }
 
+  // Collect tokens
+  info->tokens = tokenQueue_.popTokensForRange(decl.getSourceRange());
+
   return info;
 }
 
-ExtractorASTConsumer::ExtractorASTConsumer(ASTContext &context,
+ExtractorASTConsumer::ExtractorASTConsumer(CompilerInstance &CI,
                                            ExtractionInfoPtr extractionInfo)
-    : visitor_(context, extractionInfo) {}
+    : visitor_(CI.getASTContext(), std::move(extractionInfo), tokenQueue_),
+      tokenQueue_(CI.getPreprocessor()) {}
 
 bool ExtractorASTConsumer::HandleTopLevelDecl(DeclGroupRef DR) {
   for (auto it = DR.begin(), e = DR.end(); it != e; ++it) {
@@ -169,9 +183,54 @@ std::unique_ptr<ASTConsumer> ExtractorFrontendAction::CreateASTConsumer(
     CompilerInstance &CI, StringRef file) {
   extractionInfo.reset(new ExtractionInfo());
   //  CI.getASTContext().getLangOpts().OpenCL
+  return std::make_unique<ExtractorASTConsumer>(CI, extractionInfo);
+}
 
-  return std::make_unique<ExtractorASTConsumer>(CI.getASTContext(),
-                                                extractionInfo);
+std::vector<TokenInfo> TokenQueue::popTokensForRange(
+    ::clang::SourceRange range) {
+  // tokens are sorted.
+  // iterate in reverse, since it's more likely that we need recent tokens
+  std::vector<TokenInfo> result;
+  auto rangeEnd = tokens_.rend();
+  auto rangeFirst = tokens_.rend();
+  auto &SM = pp_.getSourceManager();
+  for (auto it = tokens_.rbegin(); it != tokens_.rend(); ++it) {
+    if (SM.isBeforeInTranslationUnit(range.getEnd(), it->location)) {
+      continue;
+    }
+    if (SM.isBeforeInTranslationUnit(it->location, range.getBegin())) {
+      if (rangeFirst != tokens_.rend()) {
+        rangeEnd = it;
+      }
+      break;
+    }
+
+    if (rangeFirst == tokens_.rend()) {
+      rangeFirst = it;
+    }
+    result.push_back(*it);
+  }
+
+  tokens_.erase(rangeEnd.base(), rangeFirst.base());
+
+  return result;
+}
+
+void TokenQueue::addToken(::clang::Token token) {
+  auto last = tokens_.end();
+  if (last != tokens_.begin()) {
+    last--;
+    auto &SM = pp_.getSourceManager();
+    if (SM.isBeforeInTranslationUnit(token.getLocation(), last->location)) {
+      throw std::runtime_error("new token is before last token");
+    }
+  }
+  TokenInfo info;
+  info.index = nextIndex++;
+  info.kind = token.getName();
+  info.name = pp_.getSpelling(token, nullptr);
+  info.location = token.getLocation();
+  tokens_.push_back(info);
 }
 
 }  // namespace graph

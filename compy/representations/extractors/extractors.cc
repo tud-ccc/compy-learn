@@ -126,12 +126,14 @@ void registerClangExtractor(py::module m_parent) {
 
   py::class_<cg::DeclInfo, std::shared_ptr<cg::DeclInfo>>(m_graph, "DeclInfo")
       .def_readonly("name", &cg::DeclInfo::name)
+      .def_readonly("tokens", &cg::DeclInfo::tokens)
       .def_readonly("type", &cg::DeclInfo::type);
 
   py::class_<cg::FunctionInfo, std::shared_ptr<cg::FunctionInfo>>(
       m_graph, "FunctionInfo")
       .def("accept", &cg::FunctionInfo::accept)
       .def_readonly("name", &cg::FunctionInfo::name)
+      .def_readonly("tokens", &cg::FunctionInfo::tokens)
       .def_readonly("type", &cg::FunctionInfo::type)
       .def_readonly("args", &cg::FunctionInfo::args)
       .def_readonly("cfgBlocks", &cg::FunctionInfo::cfgBlocks)
@@ -145,8 +147,15 @@ void registerClangExtractor(py::module m_parent) {
 
   py::class_<cg::StmtInfo, std::shared_ptr<cg::StmtInfo>>(m_graph, "StmtInfo")
       .def_readonly("name", &cg::StmtInfo::name)
+      .def_readonly("tokens", &cg::StmtInfo::tokens)
       .def_readonly("ast_relations", &cg::StmtInfo::ast_relations)
       .def_readonly("ref_relations", &cg::StmtInfo::ref_relations);
+
+  py::class_<cg::TokenInfo, std::shared_ptr<cg::TokenInfo>>(m_graph,
+                                                            "TokenInfo")
+      .def_readonly("name", &cg::TokenInfo::name)
+      .def_readonly("kind", &cg::TokenInfo::kind)
+      .def_readonly("index", &cg::TokenInfo::index);
 
   // Sequence extractor
   py::module m_seq = m.def_submodule("seq");
