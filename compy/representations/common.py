@@ -134,7 +134,7 @@ class Graph(object):
     def size(self):
         return len(self.G)
 
-    def draw(self, path=None, with_legend=False):
+    def draw(self, path=None, with_legend=False, align_tokens=True):
         # Copy graph object because attr modifications for a cleaner view are needed.
         G = self.G
 
@@ -184,6 +184,14 @@ class Graph(object):
             for edge_type, color in edge_colors_by_types.items():
                 if edge_type in edge_types_used:
                     subgraph.add_node(edge_type, color="invis", fontcolor=color)
+
+        # Put all tokens on single level ("rank") and enforce order
+        if align_tokens:
+            tokens = graphviz_graph.subgraph(rank="sink", rankdir="LR")
+            leaves = { n: data for n, data in self.G.nodes(data=True) if 'seq_order' in data }
+            leaf_nodes = list(sorted(leaves.items(), key=lambda x: x[1]['seq_order']))
+            for a, b in zip(leaf_nodes, leaf_nodes[1:]) :
+                tokens.add_edge(a[0], b[0], color="invis")
 
         graphviz_graph.layout("dot")
         return graphviz_graph.draw(path)
