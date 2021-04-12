@@ -34,7 +34,7 @@ struct FunctionInfo : IVisitee {
 
   void accept(IVisitor* v) override {
     v->visit(this);
-    for (const auto &it : tokenInfos) it->accept(v);
+    for (const auto& it : tokenInfos) it->accept(v);
   }
 };
 
@@ -43,7 +43,7 @@ struct ExtractionInfo : IVisitee {
 
   void accept(IVisitor* v) override {
     v->visit(this);
-    for (const auto &it : functionInfos) it->accept(v);
+    for (const auto& it : functionInfos) it->accept(v);
   }
 };
 }  // namespace seq
@@ -86,13 +86,13 @@ struct StmtInfo : OperandInfo {
 
   void accept(IVisitor* v) override {
     v->visit(this);
-    for (const auto &it : ast_relations) it->accept(v);
+    for (const auto& it : ast_relations) it->accept(v);
   }
 };
 
 struct CFGBlockInfo {
-    std::string name;
-    std::vector<StmtInfoPtr> statements;
+  std::string name;
+  std::vector<StmtInfoPtr> statements;
   std::vector<CFGBlockInfoPtr> successors;
 };
 
@@ -105,7 +105,7 @@ struct FunctionInfo : IVisitee {
 
   void accept(IVisitor* v) override {
     v->visit(this);
-    for (const auto &it : args) it->accept(v);
+    for (const auto& it : args) it->accept(v);
     entryStmt->accept(v);
   }
 };
@@ -115,7 +115,7 @@ struct ExtractionInfo : IVisitee {
 
   void accept(IVisitor* v) override {
     v->visit(this);
-    for (const auto &it : functionInfos) it->accept(v);
+    for (const auto& it : functionInfos) it->accept(v);
   }
 };
 }  // namespace graph

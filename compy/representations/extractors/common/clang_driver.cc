@@ -60,161 +60,165 @@ ClangDriver::ClangDriver(
 
 void ClangDriver::addIncludeDir(std::string includeDir,
                                 IncludeDirType includeDirType) {
-  includeDirs_.insert(includeDirs_.begin(), std::make_tuple(includeDir, includeDirType));
+  includeDirs_.insert(includeDirs_.begin(),
+                      std::make_tuple(includeDir, includeDirType));
 }
 
 void ClangDriver::removeIncludeDir(std::string includeDir,
                                    IncludeDirType includeDirType) {
-  includeDirs_.erase(std::remove(includeDirs_.begin(), includeDirs_.end(), std::make_tuple(includeDir, includeDirType)),
-  includeDirs_.end());
+  includeDirs_.erase(std::remove(includeDirs_.begin(), includeDirs_.end(),
+                                 std::make_tuple(includeDir, includeDirType)),
+                     includeDirs_.end());
 }
 
 void ClangDriver::setOptimizationLevel(OptimizationLevel optimizationLevel) {
   optimizationLevel_ = optimizationLevel;
 }
 
-void ClangDriver::Invoke(std::string src, std::vector<::clang::FrontendAction *> frontendActions,
+void ClangDriver::Invoke(std::string src,
+                         std::vector<::clang::FrontendAction *> frontendActions,
                          std::vector<::llvm::Pass *> passes) {
-    const char *filename;
-    switch (programmingLanguage_) {
-        case ProgrammingLanguage::C:
-            filename = "program.c";
-            break;
-        case ProgrammingLanguage::CPLUSPLUS:
-            filename = "program.cc";
-            break;
-        case ProgrammingLanguage::OPENCL:
-            filename = "program.cl";
-            break;
-    }
-    auto code = src.c_str();
+  const char *filename;
+  switch (programmingLanguage_) {
+    case ProgrammingLanguage::C:
+      filename = "program.c";
+      break;
+    case ProgrammingLanguage::CPLUSPLUS:
+      filename = "program.cc";
+      break;
+    case ProgrammingLanguage::OPENCL:
+      filename = "program.cl";
+      break;
+  }
+  auto code = src.c_str();
 
-    std::vector<const char *> args;
-    args.push_back(filename);
+  std::vector<const char *> args;
+  args.push_back(filename);
 
-    // Optimization level.
-    const char *optimizationLevelChr;
-    switch (optimizationLevel_) {
-        case OptimizationLevel::O0:
-            optimizationLevelChr = "-O0";
-            break;
-        case OptimizationLevel::O1:
-            optimizationLevelChr = "-O1";
-            break;
-        case OptimizationLevel::O2:
-            optimizationLevelChr = "-O2";
-            break;
-        case OptimizationLevel::O3:
-            optimizationLevelChr = "-O3";
-            break;
-    }
-    args.push_back(optimizationLevelChr);
+  // Optimization level.
+  const char *optimizationLevelChr;
+  switch (optimizationLevel_) {
+    case OptimizationLevel::O0:
+      optimizationLevelChr = "-O0";
+      break;
+    case OptimizationLevel::O1:
+      optimizationLevelChr = "-O1";
+      break;
+    case OptimizationLevel::O2:
+      optimizationLevelChr = "-O2";
+      break;
+    case OptimizationLevel::O3:
+      optimizationLevelChr = "-O3";
+      break;
+  }
+  args.push_back(optimizationLevelChr);
 
-    // Additional flags.
-    for (auto&& flag : compilerFlags_) {
-        args.push_back(flag.c_str());
-    }
+  // Additional flags.
+  for (auto &&flag : compilerFlags_) {
+    args.push_back(flag.c_str());
+  }
 
-    std::unique_ptr<clang::CompilerInstance> Clang(new CompilerInstance());
-    IntrusiveRefCntPtr<DiagnosticIDs> DiagID(new DiagnosticIDs());
+  std::unique_ptr<clang::CompilerInstance> Clang(new CompilerInstance());
+  IntrusiveRefCntPtr<DiagnosticIDs> DiagID(new DiagnosticIDs());
 
-    // Register the support for object-file-wrapped LLVMIRExtractor modules.
-    auto PCHOps = Clang->getPCHContainerOperations();
-    PCHOps->registerWriter(std::make_unique<ObjectFilePCHContainerWriter>());
-    PCHOps->registerReader(std::make_unique<ObjectFilePCHContainerReader>());
+  // Register the support for object-file-wrapped LLVMIRExtractor modules.
+  auto PCHOps = Clang->getPCHContainerOperations();
+  PCHOps->registerWriter(std::make_unique<ObjectFilePCHContainerWriter>());
+  PCHOps->registerReader(std::make_unique<ObjectFilePCHContainerReader>());
 
-    // Initialize targets first, so that --version shows registered targets.
-    ::llvm::InitializeAllTargets();
-    ::llvm::InitializeAllTargetMCs();
-    ::llvm::InitializeAllAsmPrinters();
-    ::llvm::InitializeAllAsmParsers();
+  // Initialize targets first, so that --version shows registered targets.
+  ::llvm::InitializeAllTargets();
+  ::llvm::InitializeAllTargetMCs();
+  ::llvm::InitializeAllAsmPrinters();
+  ::llvm::InitializeAllAsmParsers();
 
-    // Buffer diagnostics from argument parsing so that we can output them using a
-    // well formed diagnostic object.
-    IntrusiveRefCntPtr<DiagnosticOptions> DiagOpts = new DiagnosticOptions();
-    TextDiagnosticBuffer *DiagsBuffer = new TextDiagnosticBuffer;
-    DiagnosticsEngine Diags(DiagID, &*DiagOpts, DiagsBuffer);
+  // Buffer diagnostics from argument parsing so that we can output them using a
+  // well formed diagnostic object.
+  IntrusiveRefCntPtr<DiagnosticOptions> DiagOpts = new DiagnosticOptions();
+  TextDiagnosticBuffer *DiagsBuffer = new TextDiagnosticBuffer;
+  DiagnosticsEngine Diags(DiagID, &*DiagOpts, DiagsBuffer);
 
-    // Initialize CompilerInvocation.
-    CompilerInvocation::CreateFromArgs(Clang->getInvocation(), ArrayRef<const char *>(args), Diags);
+  // Initialize CompilerInvocation.
+  CompilerInvocation::CreateFromArgs(Clang->getInvocation(),
+                                     ArrayRef<const char *>(args), Diags);
 
-    // Map code filename to a memoryBuffer.
-    StringRef codeData(code);
-    std::unique_ptr<MemoryBuffer> buffer =
-            MemoryBuffer::getMemBufferCopy(codeData);
-    Clang->getInvocation().getPreprocessorOpts().addRemappedFile(
-            filename, buffer.release());
+  // Map code filename to a memoryBuffer.
+  StringRef codeData(code);
+  std::unique_ptr<MemoryBuffer> buffer =
+      MemoryBuffer::getMemBufferCopy(codeData);
+  Clang->getInvocation().getPreprocessorOpts().addRemappedFile(
+      filename, buffer.release());
 
-    // Add include paths.
-    for (auto includeDir : includeDirs_) {
-        frontend::IncludeDirGroup includeDirGroup;
-        switch (std::get<1>(includeDir)) {
-            case IncludeDirType::SYSTEM:
-                includeDirGroup = frontend::IncludeDirGroup::System;
-                break;
-            case IncludeDirType::USER:
-                includeDirGroup = frontend::IncludeDirGroup::Angled;
-                break;
-        }
-
-        Clang->getHeaderSearchOpts().UserEntries.push_back(
-                HeaderSearchOptions::Entry(std::get<0>(includeDir), includeDirGroup,
-                                           false, false));
+  // Add include paths.
+  for (auto includeDir : includeDirs_) {
+    frontend::IncludeDirGroup includeDirGroup;
+    switch (std::get<1>(includeDir)) {
+      case IncludeDirType::SYSTEM:
+        includeDirGroup = frontend::IncludeDirGroup::System;
+        break;
+      case IncludeDirType::USER:
+        includeDirGroup = frontend::IncludeDirGroup::Angled;
+        break;
     }
 
-    // Create the actual diagnostics engine.
-    Clang->createDiagnostics();
+    Clang->getHeaderSearchOpts().UserEntries.push_back(
+        HeaderSearchOptions::Entry(std::get<0>(includeDir), includeDirGroup,
+                                   false, false));
+  }
 
-    // Set an error handler, so that any LLVM backend diagnostics go through our
-    // error handler.
-    ::llvm::install_fatal_error_handler(
-            LLVMErrorHandler, static_cast<void *>(&Clang->getDiagnostics()));
+  // Create the actual diagnostics engine.
+  Clang->createDiagnostics();
 
-    DiagsBuffer->FlushDiagnostics(Clang->getDiagnostics());
+  // Set an error handler, so that any LLVM backend diagnostics go through our
+  // error handler.
+  ::llvm::install_fatal_error_handler(
+      LLVMErrorHandler, static_cast<void *>(&Clang->getDiagnostics()));
 
-    // Run clang frontend actions.
-    for (auto frontendAction : frontendActions) {
-        if (!Clang->ExecuteAction(*frontendAction)) {
-            for (TextDiagnosticBuffer::const_iterator I = DiagsBuffer->err_begin(),
-                         E = DiagsBuffer->err_end();
-                 I != E; ++I)
-                std::cout << "# " << I->second << '\n';
+  DiagsBuffer->FlushDiagnostics(Clang->getDiagnostics());
 
-            throw std::runtime_error("Failed compiling to execute frontend action");
-        }
+  // Run clang frontend actions.
+  for (auto frontendAction : frontendActions) {
+    if (!Clang->ExecuteAction(*frontendAction)) {
+      for (TextDiagnosticBuffer::const_iterator I = DiagsBuffer->err_begin(),
+                                                E = DiagsBuffer->err_end();
+           I != E; ++I)
+        std::cout << "# " << I->second << '\n';
+
+      throw std::runtime_error("Failed compiling to execute frontend action");
+    }
+  }
+
+  // Convert to LLVM module if needed (if there are any LLVM passes).
+  if (!passes.empty()) {
+    // Lower Clang AST to LLVM bitcode module.
+    std::unique_ptr<CodeGenAction> Act(new EmitLLVMOnlyAction());
+    if (!Clang->ExecuteAction(*Act)) {
+      for (TextDiagnosticBuffer::const_iterator I = DiagsBuffer->err_begin(),
+                                                E = DiagsBuffer->err_end();
+           I != E; ++I)
+        std::cout << "# " << I->second << '\n';
+
+      throw std::runtime_error("Failed compiling to LLVM module");
+    }
+    std::unique_ptr<::llvm::Module> Module = Act->takeModule();
+
+    ::llvm::remove_fatal_error_handler();
+
+    // Register other llvm passes.
+    PassRegistry &reg = *PassRegistry::getPassRegistry();
+    initializeCallGraphWrapperPassPass(reg);
+    initializeMemorySSAWrapperPassPass(reg);
+    initializeStripSymbolsPass(reg);
+
+    // Setup the pass manager and add passes.
+    pm_.reset(new legacy::PassManager());
+    for (auto pass : passes) {
+      pm_->add(pass);
     }
 
-    // Convert to LLVM module if needed (if there are any LLVM passes).
-    if (!passes.empty()) {
-        // Lower Clang AST to LLVM bitcode module.
-        std::unique_ptr<CodeGenAction> Act(new EmitLLVMOnlyAction());
-        if (!Clang->ExecuteAction(*Act)) {
-            for (TextDiagnosticBuffer::const_iterator I = DiagsBuffer->err_begin(),
-                         E = DiagsBuffer->err_end();
-                 I != E; ++I)
-                std::cout << "# " << I->second << '\n';
-
-            throw std::runtime_error("Failed compiling to LLVM module");
-        }
-        std::unique_ptr<::llvm::Module> Module = Act->takeModule();
-
-        ::llvm::remove_fatal_error_handler();
-
-        // Register other llvm passes.
-        PassRegistry &reg = *PassRegistry::getPassRegistry();
-        initializeCallGraphWrapperPassPass(reg);
-        initializeMemorySSAWrapperPassPass(reg);
-        initializeStripSymbolsPass(reg);
-
-        // Setup the pass manager and add passes.
-        pm_.reset(new legacy::PassManager());
-        for (auto pass : passes) {
-            pm_->add(pass);
-        }
-
-        // Run passes.
-        pm_->run(*Module);
-    }
+    // Run passes.
+    pm_->run(*Module);
+  }
 }
 
 }  // namespace compy

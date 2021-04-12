@@ -6,8 +6,8 @@
 
 #include "llvm/IR/Module.h"
 #include "llvm/Pass.h"
-#include "llvm_extractor.h"
 
+#include "llvm_extractor.h"
 
 namespace compy {
 namespace llvm {

@@ -42,7 +42,7 @@ bool ExtractorASTVisitor::VisitFunctionDecl(FunctionDecl *f) {
     return true;
   }
 
-//  ::llvm::errs() << f->getNameAsString() << "\n";
+  //  ::llvm::errs() << f->getNameAsString() << "\n";
 
   FunctionInfoPtr functionInfo = getInfo(*f);
   extractionInfo_->functionInfos.push_back(functionInfo);
@@ -56,48 +56,51 @@ bool ExtractorASTVisitor::VisitFunctionDecl(FunctionDecl *f) {
   }
 
   // Dump CFG.
-  std::unique_ptr<CFG> cfg = CFG::buildCFG(f, f->getBody(), &context_, CFG::BuildOptions());
-//  cfg->dump(LangOptions(), true);
+  std::unique_ptr<CFG> cfg =
+      CFG::buildCFG(f, f->getBody(), &context_, CFG::BuildOptions());
+  //  cfg->dump(LangOptions(), true);
 
-    // Create CFG Blocks.
-    for (CFG::iterator it = cfg->begin(), Eb = cfg->end() ; it != Eb ; ++it) {
-        CFGBlock *B = *it;
-        functionInfo->cfgBlocks.push_back(getInfo(*B));
-    }
+  // Create CFG Blocks.
+  for (CFG::iterator it = cfg->begin(), Eb = cfg->end(); it != Eb; ++it) {
+    CFGBlock *B = *it;
+    functionInfo->cfgBlocks.push_back(getInfo(*B));
+  }
 
   return RecursiveASTVisitor<ExtractorASTVisitor>::VisitFunctionDecl(f);
 }
 
 CFGBlockInfoPtr ExtractorASTVisitor::getInfo(const ::clang::CFGBlock &block) {
-    auto it = cfgBlockInfos_.find(&block);
-    if (it != cfgBlockInfos_.end()) return it->second;
+  auto it = cfgBlockInfos_.find(&block);
+  if (it != cfgBlockInfos_.end()) return it->second;
 
-    CFGBlockInfoPtr info(new CFGBlockInfo);
-    cfgBlockInfos_[&block] = info;
+  CFGBlockInfoPtr info(new CFGBlockInfo);
+  cfgBlockInfos_[&block] = info;
 
-    // Collect name.
-    info->name = "cfg_" + std::to_string(block.getBlockID());
+  // Collect name.
+  info->name = "cfg_" + std::to_string(block.getBlockID());
 
-    // Collect statements.
-    for (CFGBlock::const_iterator it = block.begin(), Es = block.end(); it != Es ; ++it) {
-        if (Optional<CFGStmt> CS = it->getAs<CFGStmt>()) {
-            const Stmt *S = CS->getStmt();
-            info->statements.push_back(getInfo(*S));
-        }
+  // Collect statements.
+  for (CFGBlock::const_iterator it = block.begin(), Es = block.end(); it != Es;
+       ++it) {
+    if (Optional<CFGStmt> CS = it->getAs<CFGStmt>()) {
+      const Stmt *S = CS->getStmt();
+      info->statements.push_back(getInfo(*S));
     }
-    if (block.getTerminatorStmt()) {
-        const Stmt *S = block.getTerminatorStmt();
-        info->statements.push_back(getInfo(*S));
-    }
+  }
+  if (block.getTerminatorStmt()) {
+    const Stmt *S = block.getTerminatorStmt();
+    info->statements.push_back(getInfo(*S));
+  }
 
-    // Collect successors.
-    for (CFGBlock::const_succ_iterator it = block.succ_begin(), Es = block.succ_end(); it != Es; ++it) {
-        CFGBlock *B = *it;
-        if(B)
-          info->successors.push_back(getInfo(*B));
-    }
+  // Collect successors.
+  for (CFGBlock::const_succ_iterator it = block.succ_begin(),
+                                     Es = block.succ_end();
+       it != Es; ++it) {
+    CFGBlock *B = *it;
+    if (B) info->successors.push_back(getInfo(*B));
+  }
 
-    return info;
+  return info;
 }
 
 FunctionInfoPtr ExtractorASTVisitor::getInfo(const FunctionDecl &func) {
@@ -165,10 +168,10 @@ bool ExtractorASTConsumer::HandleTopLevelDecl(DeclGroupRef DR) {
 std::unique_ptr<ASTConsumer> ExtractorFrontendAction::CreateASTConsumer(
     CompilerInstance &CI, StringRef file) {
   extractionInfo.reset(new ExtractionInfo());
-//  CI.getASTContext().getLangOpts().OpenCL
+  //  CI.getASTContext().getLangOpts().OpenCL
 
   return std::make_unique<ExtractorASTConsumer>(CI.getASTContext(),
-                                                 extractionInfo);
+                                                extractionInfo);
 }
 
 }  // namespace graph

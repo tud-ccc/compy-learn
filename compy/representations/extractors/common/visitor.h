@@ -11,4 +11,4 @@ struct IVisitee {
   virtual void accept(IVisitor* v) = 0;
 };
 
-} // namespace compy
+}  // namespace compy

@@ -35,7 +35,7 @@ struct BasicBlockInfo : IVisitee {
 
   void accept(IVisitor* v) override {
     v->visit(this);
-    for (const auto &it : instructions) it->accept(v);
+    for (const auto& it : instructions) it->accept(v);
   }
 };
 
@@ -47,7 +47,7 @@ struct FunctionInfo : IVisitee {
 
   void accept(IVisitor* v) override {
     v->visit(this);
-    for (const auto &it : basicBlocks) it->accept(v);
+    for (const auto& it : basicBlocks) it->accept(v);
   }
 };
 
@@ -56,7 +56,7 @@ struct ExtractionInfo : IVisitee {
 
   void accept(IVisitor* v) override {
     v->visit(this);
-    for (const auto &it : functionInfos) it->accept(v);
+    for (const auto& it : functionInfos) it->accept(v);
   }
 };
 }  // namespace seq
@@ -101,10 +101,10 @@ struct ArgInfo : OperandInfo {
 };
 
 struct ConstantInfo : OperandInfo {
-    std::string type;
-    std::string value;
+  std::string type;
+  std::string value;
 
-    void accept(IVisitor* v) override { v->visit(this); }
+  void accept(IVisitor* v) override { v->visit(this); }
 };
 
 struct InstructionInfo : OperandInfo {
@@ -125,7 +125,7 @@ struct BasicBlockInfo : IVisitee {
 
   void accept(IVisitor* v) override {
     v->visit(this);
-    for (const auto &it : instructions) it->accept(v);
+    for (const auto& it : instructions) it->accept(v);
   }
 };
 
@@ -147,7 +147,7 @@ struct FunctionInfo : IVisitee {
 
   void accept(IVisitor* v) override {
     v->visit(this);
-    for (const auto &it : basicBlocks) it->accept(v);
+    for (const auto& it : basicBlocks) it->accept(v);
   }
 };
 
@@ -161,7 +161,7 @@ struct ExtractionInfo : IVisitee {
 
   void accept(IVisitor* v) override {
     v->visit(this);
-    for (const auto &it : functionInfos) it->accept(v);
+    for (const auto& it : functionInfos) it->accept(v);
   }
 };
 }  // namespace graph

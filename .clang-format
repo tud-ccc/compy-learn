@@ -1,3 +1,13 @@
 # Run manually to reformat a file:
 # clang-format -i --style=file <file>
 BasedOnStyle: Google
+IndentWidth: 2
+TabWidth: 2
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^["<](llvm|llvm-c|clang|clang-c)/'
+    Priority:        2
+  - Regex:  '^<'
+    Priority:        1
+  - Regex:  '.*'
+    Priority:        3

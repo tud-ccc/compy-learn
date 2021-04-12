@@ -4,13 +4,14 @@
 #include <string>
 #include <vector>
 
-#include <clang/Analysis/CFG.h>
 #include "clang/AST/AST.h"
 #include "clang/AST/ExternalASTSource.h"
 #include "clang/AST/RecursiveASTVisitor.h"
 #include "clang/Frontend/FrontendActions.h"
-#include "clang_extractor.h"
 #include "llvm/ADT/StringRef.h"
+#include <clang/Analysis/CFG.h>
+
+#include "clang_extractor.h"
 
 namespace compy {
 namespace clang {

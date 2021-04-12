@@ -16,8 +16,8 @@ namespace seq {
 class InfoBuilder {
  public:
   InfoBuilder() {
-      functionInfo_.reset(new FunctionInfo);
-      largestSlotIdSoFar_ = 0;
+    functionInfo_.reset(new FunctionInfo);
+    largestSlotIdSoFar_ = 0;
   }
 
   void AddToken(std::string token) { tokenBuffer_.push_back(token); }
@@ -52,10 +52,11 @@ class InfoBuilder {
 
     // Track largest slot id.
     for (std::size_t i = 0; i != instructionInfo->tokens.size() - 2; ++i) {
-        if (instructionInfo->tokens[i] == "%" && instructionInfo->tokens[i+2] == " = ") {
-            int slotId = std::stoi(instructionInfo->tokens[i + 1]);
-            largestSlotIdSoFar_ = std::max(largestSlotIdSoFar_, slotId);
-        }
+      if (instructionInfo->tokens[i] == "%" &&
+          instructionInfo->tokens[i + 2] == " = ") {
+        int slotId = std::stoi(instructionInfo->tokens[i + 1]);
+        largestSlotIdSoFar_ = std::max(largestSlotIdSoFar_, slotId);
+      }
     }
   }
 
