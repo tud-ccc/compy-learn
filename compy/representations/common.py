@@ -156,7 +156,10 @@ class Graph(object):
             "mem": "pink",
             "call": "yellow",
         }
-        edge_colors_available = ["orange", "pink"]
+        edge_colors_available = ["orange", "pink", "cyan", "crimson", "darkgreen", "darkblue", "darkcyan"]
+        for etype in self.__edge_types:
+            if etype in edge_colors_by_types: continue
+            edge_colors_by_types[etype] = edge_colors_available.pop(0)
 
         for u, v, key, data in G.edges(keys=True, data=True):
             edge_type = data["attr"]
