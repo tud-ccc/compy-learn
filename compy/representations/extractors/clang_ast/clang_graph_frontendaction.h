@@ -61,7 +61,7 @@ class ExtractorASTVisitor
   FunctionInfoPtr getInfo(const ::clang::FunctionDecl &func);
   CFGBlockInfoPtr getInfo(const ::clang::CFGBlock &block);
   StmtInfoPtr getInfo(const ::clang::Stmt &stmt);
-  DeclInfoPtr getInfo(const ::clang::Decl &decl);
+  DeclInfoPtr getInfo(const ::clang::Decl &decl, bool consumeTokens);
 
  private:
   ::clang::ASTContext &context_;

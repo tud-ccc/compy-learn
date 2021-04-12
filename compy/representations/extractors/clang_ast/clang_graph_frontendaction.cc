@@ -23,15 +23,17 @@ namespace clang {
 namespace graph {
 
 bool ExtractorASTVisitor::VisitStmt(Stmt *s) {
-  StmtInfoPtr info = getInfo(*s);
-
-  // Add child stmts
+  // Collect child stmts
+  std::vector<OperandInfoPtr> ast_relations;
   for (auto it : s->children()) {
     if (it) {
       StmtInfoPtr childInfo = getInfo(*it);
-      info->ast_relations.push_back(childInfo);
+      ast_relations.push_back(childInfo);
     }
   }
+
+  StmtInfoPtr info = getInfo(*s);
+  info->ast_relations = std::move(ast_relations);
 
   return RecursiveASTVisitor<ExtractorASTVisitor>::VisitStmt(s);
 }
@@ -55,7 +57,7 @@ bool ExtractorASTVisitor::VisitFunctionDecl(FunctionDecl *f) {
 
   // Add args.
   for (auto it : f->parameters()) {
-    functionInfo->args.push_back(getInfo(*it));
+    functionInfo->args.push_back(getInfo(*it, true));
   }
 
   // Dump CFG.
@@ -117,7 +119,6 @@ FunctionInfoPtr ExtractorASTVisitor::getInfo(const FunctionDecl &func) {
 
   // Collect tokens
   info->tokens = tokenQueue_.popTokensForRange(func.getSourceRange());
-  ;
 
   return info;
 }
@@ -134,7 +135,7 @@ StmtInfoPtr ExtractorASTVisitor::getInfo(const Stmt &stmt) {
 
   // Collect referencing targets.
   if (const DeclRefExpr *de = dyn_cast<DeclRefExpr>(&stmt)) {
-    info->ref_relations.push_back(getInfo(*de->getDecl()));
+    info->ref_relations.push_back(getInfo(*de->getDecl(), false));
   }
 
   // Collect tokens
@@ -143,7 +144,7 @@ StmtInfoPtr ExtractorASTVisitor::getInfo(const Stmt &stmt) {
   return info;
 }
 
-DeclInfoPtr ExtractorASTVisitor::getInfo(const Decl &decl) {
+DeclInfoPtr ExtractorASTVisitor::getInfo(const Decl &decl, bool consumeTokens) {
   auto it = declInfos_.find(&decl);
   if (it != declInfos_.end()) return it->second;
 
@@ -161,7 +162,9 @@ DeclInfoPtr ExtractorASTVisitor::getInfo(const Decl &decl) {
   }
 
   // Collect tokens
-  info->tokens = tokenQueue_.popTokensForRange(decl.getSourceRange());
+  if (consumeTokens) {
+    info->tokens = tokenQueue_.popTokensForRange(decl.getSourceRange());
+  }
 
   return info;
 }
