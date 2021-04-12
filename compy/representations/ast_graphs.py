@@ -67,7 +67,7 @@ def add_token_ast_edges(g: nx.MultiDiGraph, node):
     if hasattr(node, 'tokens'):
         for token in node.tokens:
             g.add_node(token, attr=token.name, seq_order=token.index)
-            g.add_edge(token, node, attr="token")
+            g.add_edge(node, token, attr="token")
 
 
 class ASTVisitor(Visitor):
