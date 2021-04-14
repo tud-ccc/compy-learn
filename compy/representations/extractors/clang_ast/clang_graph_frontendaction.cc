@@ -147,7 +147,15 @@ StmtInfoPtr ExtractorASTVisitor::getInfo(const Stmt &stmt) {
 
 DeclInfoPtr ExtractorASTVisitor::getInfo(const Decl &decl, bool consumeTokens) {
   auto it = declInfos_.find(&decl);
-  if (it != declInfos_.end()) return it->second;
+  if (it != declInfos_.end()) {
+    if (consumeTokens) {
+      auto tokens = tokenQueue_.popTokensForRange(decl.getSourceRange());
+      it->second->tokens.insert(it->second->tokens.end(), tokens.begin(),
+                                tokens.end());
+    }
+
+    return it->second;
+  }
 
   DeclInfoPtr info(new DeclInfo);
   declInfos_[&decl] = info;
