@@ -32,6 +32,7 @@ class TokenQueue {
   ~TokenQueue() { pp_.setTokenWatcher(nullptr); }
 
   std::vector<TokenInfo> popTokensForRange(::clang::SourceRange range);
+  TokenInfo *getTokenAt(::clang::SourceLocation loc);
 
  private:
   void addToken(::clang::Token token);

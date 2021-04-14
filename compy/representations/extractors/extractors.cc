@@ -126,6 +126,8 @@ void registerClangExtractor(py::module m_parent) {
 
   py::class_<cg::DeclInfo, std::shared_ptr<cg::DeclInfo>>(m_graph, "DeclInfo")
       .def_readonly("name", &cg::DeclInfo::name)
+      .def_readonly("kind", &cg::DeclInfo::kind)
+      .def_readonly("nameToken", &cg::DeclInfo::nameToken)
       .def_readonly("tokens", &cg::DeclInfo::tokens)
       .def_readonly("type", &cg::DeclInfo::type);
 

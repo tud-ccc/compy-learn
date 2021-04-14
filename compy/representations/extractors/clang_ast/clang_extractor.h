@@ -83,7 +83,9 @@ struct OperandInfo : IVisitee {
 struct DeclInfo : OperandInfo {
   std::string name;
   std::string type;
+  std::string kind;
   std::vector<TokenInfo> tokens;
+  TokenInfo nameToken;
 
   void accept(IVisitor* v) override {
     v->visit(this);

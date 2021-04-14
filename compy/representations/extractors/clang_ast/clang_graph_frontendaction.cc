@@ -6,13 +6,11 @@
 
 #include "clang/AST/ASTConsumer.h"
 #include "clang/AST/Decl.h"
-#include "clang/Analysis/Analyses/LiveVariables.h"
 #include "clang/Analysis/CFG.h"
 #include "clang/Frontend/ASTConsumers.h"
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/Frontend/MultiplexConsumer.h"
 #include "clang/StaticAnalyzer/Core/Checker.h"
-#include "clang/StaticAnalyzer/Core/PathSensitive/AnalysisManager.h"
 #include "llvm/Support/raw_ostream.h"
 
 using namespace ::clang;
@@ -160,9 +158,15 @@ DeclInfoPtr ExtractorASTVisitor::getInfo(const Decl &decl, bool consumeTokens) {
   DeclInfoPtr info(new DeclInfo);
   declInfos_[&decl] = info;
 
+  info->kind = decl.getDeclKindName();
+
   // Collect name.
   if (const ValueDecl *vd = dyn_cast<ValueDecl>(&decl)) {
     info->name = vd->getQualifiedNameAsString();
+
+    if (const auto nameTokenPtr = tokenQueue_.getTokenAt(vd->getLocation())) {
+      info->nameToken = *nameTokenPtr;
+    }
   }
 
   // Collect type.
@@ -243,6 +247,17 @@ void TokenQueue::addToken(::clang::Token token) {
   info.name = pp_.getSpelling(token, nullptr);
   info.location = token.getLocation();
   tokens_.push_back(info);
+}
+
+TokenInfo *TokenQueue::getTokenAt(SourceLocation loc) {
+  auto it = tokens_.end();
+  auto &SM = pp_.getSourceManager();
+  while (it > tokens_.begin()) {
+    it--;
+    if (it->location == loc) return &*it;
+    if (SM.isBeforeInTranslationUnit(it->location, loc)) break;
+  }
+  return nullptr;
 }
 
 }  // namespace graph
