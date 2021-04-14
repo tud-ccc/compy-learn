@@ -33,7 +33,8 @@ bool ExtractorASTVisitor::VisitStmt(Stmt *s) {
   }
 
   StmtInfoPtr info = getInfo(*s);
-  info->ast_relations = std::move(ast_relations);
+  info->ast_relations.insert(info->ast_relations.end(), ast_relations.begin(),
+                             ast_relations.end());
 
   return RecursiveASTVisitor<ExtractorASTVisitor>::VisitStmt(s);
 }
