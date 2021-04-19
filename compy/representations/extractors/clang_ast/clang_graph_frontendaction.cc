@@ -30,6 +30,12 @@ bool ExtractorASTVisitor::VisitStmt(Stmt *s) {
     }
   }
 
+  if (auto *ds = dyn_cast<DeclStmt>(s)) {
+    for (const Decl *decl : ds->decls()) {
+      ast_relations.push_back(getInfo(*decl, false));
+    }
+  }
+
   StmtInfoPtr info = getInfo(*s);
   info->ast_relations.insert(info->ast_relations.end(), ast_relations.begin(),
                              ast_relations.end());
