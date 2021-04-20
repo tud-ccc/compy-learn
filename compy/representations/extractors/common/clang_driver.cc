@@ -164,6 +164,10 @@ void ClangDriver::Invoke(std::string src,
       std::cout << "# " << I->second << '\n';
     throw std::runtime_error("Failed parsing compilation arguments");
   }
+
+  // We should not leak memory
+  invocation->getFrontendOpts().DisableFree = 0;
+
   Clang->setInvocation(invocation);
 
   // Map code filename to a memoryBuffer.
