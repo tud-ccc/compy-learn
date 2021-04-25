@@ -210,60 +210,35 @@ std::unique_ptr<ASTConsumer> ExtractorFrontendAction::CreateASTConsumer(
 
 std::vector<TokenInfo> TokenQueue::popTokensForRange(
     ::clang::SourceRange range) {
-  // tokens are sorted.
-  // iterate in reverse, since it's more likely that we need recent tokens
   std::vector<TokenInfo> result;
-  auto rangeEnd = tokens_.rend();
-  auto rangeFirst = tokens_.rend();
-  auto &SM = pp_.getSourceManager();
-  for (auto it = tokens_.rbegin(); it != tokens_.rend(); ++it) {
-    if (SM.isBeforeInTranslationUnit(range.getEnd(), it->location)) {
-      continue;
-    }
-    if (SM.isBeforeInTranslationUnit(it->location, range.getBegin())) {
-      if (rangeFirst != tokens_.rend()) {
-        rangeEnd = it;
-      }
-      break;
-    }
+  auto startPos = token_index_[range.getBegin().getRawEncoding()];
+  auto endPos = token_index_[range.getEnd().getRawEncoding()];
+  for (std::size_t i = startPos; i <= endPos; ++i) {
+    if (token_consumed_[i]) continue;
 
-    if (rangeFirst == tokens_.rend()) {
-      rangeFirst = it;
-    }
-    result.push_back(*it);
+    result.push_back(tokens_[i]);
+    token_consumed_[i] = true;
   }
-
-  tokens_.erase(rangeEnd.base(), rangeFirst.base());
 
   return result;
 }
 
 void TokenQueue::addToken(::clang::Token token) {
-  auto last = tokens_.end();
-  if (last != tokens_.begin()) {
-    last--;
-    auto &SM = pp_.getSourceManager();
-    if (SM.isBeforeInTranslationUnit(token.getLocation(), last->location)) {
-      throw std::runtime_error("new token is before last token");
-    }
-  }
   TokenInfo info;
   info.index = nextIndex++;
   info.kind = token.getName();
   info.name = pp_.getSpelling(token, nullptr);
   info.location = token.getLocation();
   tokens_.push_back(info);
+  token_consumed_.push_back(false);
+  token_index_[info.location.getRawEncoding()] = tokens_.size() - 1;
 }
 
 TokenInfo *TokenQueue::getTokenAt(SourceLocation loc) {
-  auto it = tokens_.end();
-  auto &SM = pp_.getSourceManager();
-  while (it > tokens_.begin()) {
-    it--;
-    if (it->location == loc) return &*it;
-    if (SM.isBeforeInTranslationUnit(it->location, loc)) break;
-  }
-  return nullptr;
+  auto pos = token_index_.find(loc.getRawEncoding());
+  if (pos == token_index_.end()) return nullptr;
+
+  return &tokens_[pos->second];
 }
 
 }  // namespace graph

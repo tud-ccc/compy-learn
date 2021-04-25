@@ -39,6 +39,9 @@ class TokenQueue {
 
   ::clang::Preprocessor &pp_;
   std::vector<TokenInfo> tokens_;
+  std::vector<bool> token_consumed_;
+  llvm::DenseMap<unsigned, std::size_t> token_index_;
+
   std::uint64_t nextIndex = 0;
 };
 
