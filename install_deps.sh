@@ -21,10 +21,10 @@ function install_python_packages {
 
   python3 -m pip install torch==1.5.0+${CUDA} -f https://download.pytorch.org/whl/torch_stable.html
   python3 -m pip install torchvision==0.6.0
-  python3 -m pip install torch-scatter -f https://pytorch-geometric.com/whl/torch-1.5.0+${CUDA}.html
-  python3 -m pip install torch-sparse -f https://pytorch-geometric.com/whl/torch-1.5.0+${CUDA}.html
-  python3 -m pip install torch-cluster -f https://pytorch-geometric.com/whl/torch-1.5.0+${CUDA}.html
-  python3 -m pip install torch-spline-conv -f https://pytorch-geometric.com/whl/torch-1.5.0+${CUDA}.html
+  python3 -m pip install torch-scatter==2.0.5 -f https://pytorch-geometric.com/whl/torch-1.5.0+${CUDA}.html
+  python3 -m pip install torch-sparse==0.6.7 -f https://pytorch-geometric.com/whl/torch-1.5.0+${CUDA}.html
+  python3 -m pip install torch-cluster==1.5.7 -f https://pytorch-geometric.com/whl/torch-1.5.0+${CUDA}.html
+  python3 -m pip install torch-spline-conv==1.2.0 -f https://pytorch-geometric.com/whl/torch-1.5.0+${CUDA}.html
   if [[ "$CUDA" != "cpu" ]]; then
     python3 -m pip install dgl-$CUDA
   else
