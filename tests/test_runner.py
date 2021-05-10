@@ -40,7 +40,7 @@ class MainTest(unittest.TestCase):
         # XML report for codecov
         args = ["--cov-report=xml"] + args
 
-        pytest.main(args)
+        assert pytest.main(args) == pytest.ExitCode.OK
 
 
 if __name__ == "__main__":

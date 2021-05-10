@@ -30,7 +30,7 @@ function install_python_packages {
   else
     python3 -m pip install dgl
   fi
-  python3 -m pip install tensorflow==2.2.0
+  python3 -m pip install tensorflow==2.2.2
 }
 
 
