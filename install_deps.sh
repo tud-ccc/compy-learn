@@ -25,7 +25,7 @@ function install_python_packages {
   pip install torch-cluster==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html
   pip install torch-spline-conv==latest+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html
   pip install dgl
-  pip install tensorflow==2.2.0
+  pip install tensorflow==2.2.2
 }
 
 
