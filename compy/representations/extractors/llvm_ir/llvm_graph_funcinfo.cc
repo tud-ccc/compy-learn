@@ -11,11 +11,11 @@ namespace compy {
 namespace llvm {
 namespace graph {
 
-std::string llvmTypeToString(Type* type) {
-    std::string typeName;
-    raw_string_ostream rso(typeName);
-    type->print(rso);
-    return rso.str();
+std::string llvmTypeToString(Type *type) {
+  std::string typeName;
+  raw_string_ostream rso(typeName);
+  type->print(rso);
+  return rso.str();
 }
 
 /**
@@ -63,16 +63,16 @@ ArgInfoPtr FunctionInfoPass::getInfo(const Argument &arg) {
 }
 
 ConstantInfoPtr FunctionInfoPass::getInfo(const ::llvm::Constant &con) {
-    auto it = constantInfos.find(&con);
-    if (it != constantInfos.end()) return it->second;
+  auto it = constantInfos.find(&con);
+  if (it != constantInfos.end()) return it->second;
 
-    ConstantInfoPtr info(new ConstantInfo());
-    constantInfos[&con] = info;
+  ConstantInfoPtr info(new ConstantInfo());
+  constantInfos[&con] = info;
 
-    // collect the type
-    info->type = llvmTypeToString(con.getType());
+  // collect the type
+  info->type = llvmTypeToString(con.getType());
 
-    return info;
+  return info;
 }
 
 InstructionInfoPtr FunctionInfoPass::getInfo(const Instruction &inst) {
@@ -86,7 +86,7 @@ InstructionInfoPtr FunctionInfoPass::getInfo(const Instruction &inst) {
   info->opcode = inst.getOpcodeName();
 
   if (inst.getOpcodeName() == std::string("ret")) {
-      info_->exitInstructions.push_back(info);
+    info_->exitInstructions.push_back(info);
   }
 
   // collect type
@@ -97,20 +97,20 @@ InstructionInfoPtr FunctionInfoPass::getInfo(const Instruction &inst) {
 
   // collect data dependencies
   for (auto &use : inst.operands()) {
-      if (isa<Instruction>(use.get())) {
-          auto &opInst = *cast<Instruction>(use.get());
-          info->operands.push_back(getInfo(opInst));
-      }
+    if (isa<Instruction>(use.get())) {
+      auto &opInst = *cast<Instruction>(use.get());
+      info->operands.push_back(getInfo(opInst));
+    }
 
-      if (isa<Argument>(use.get())) {
-          auto &opInst = *cast<Argument>(use.get());
-          info->operands.push_back(getInfo(opInst));
-      }
+    if (isa<Argument>(use.get())) {
+      auto &opInst = *cast<Argument>(use.get());
+      info->operands.push_back(getInfo(opInst));
+    }
 
-      if (isa<Constant>(use.get())) {
-          auto &opInst = *cast<Constant>(use.get());
-          info->operands.push_back(getInfo(opInst));
-      }
+    if (isa<Constant>(use.get())) {
+      auto &opInst = *cast<Constant>(use.get());
+      info->operands.push_back(getInfo(opInst));
+    }
   }
 
   // collect called function (if this instruction is a call)
@@ -145,7 +145,7 @@ BasicBlockInfoPtr FunctionInfoPass::getInfo(const BasicBlock &bb) {
   // collect all successors
   auto term = bb.getTerminator();
   for (size_t i = 0; i < term->getNumSuccessors(); i++) {
-    BasicBlock* succ = term->getSuccessor(i);
+    BasicBlock *succ = term->getSuccessor(i);
     info->successors.push_back(getInfo(*succ));
   }
 
@@ -206,7 +206,8 @@ bool FunctionInfoPass::runOnFunction(::llvm::Function &func) {
   info_ = FunctionInfoPtr(new FunctionInfo());
 
   info_->name = getUniqueName(func);
-  info_->entryInstruction = getInfo(*func.getEntryBlock().getInstList().begin());
+  info_->entryInstruction =
+      getInfo(*func.getEntryBlock().getInstList().begin());
 
   std::string rtypeName;
   raw_string_ostream rso(rtypeName);

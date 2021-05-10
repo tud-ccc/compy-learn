@@ -1,7 +1,6 @@
+#include <memory>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
-#include <memory>
 
 #include "clang_ast/clang_extractor.h"
 #include "common/clang_driver.h"
@@ -63,24 +62,24 @@ struct polymorphic_type_hook<cg::OperandInfo> {
 
 class PyVisitor : public IVisitor {
  public:
-  using IVisitor::IVisitor;  /* Inherit the constructors */
+  using IVisitor::IVisitor; /* Inherit the constructors */
 
-  void visit(IVisitee* v) override {
+  void visit(IVisitee *v) override {
     PYBIND11_OVERLOAD_PURE(
-        void,          /* Return type */
-        IVisitor,      /* Parent class */
-        visit,         /* Name of function in C++ (must match Python name) */
-        v              /* Argument(s) */
+        void,     /* Return type */
+        IVisitor, /* Parent class */
+        visit,    /* Name of function in C++ (must match Python name) */
+        v         /* Argument(s) */
     );
   }
 };
 
 void registerClangDriver(py::module m) {
   py::class_<CD, std::shared_ptr<CD>> clangDriver(m, "ClangDriver");
-  clangDriver.def(
-      py::init<CD::ProgrammingLanguage, CD::OptimizationLevel,
-          std::vector<std::tuple<std::string, CD::IncludeDirType>>,
-          std::vector<std::string>>())
+  clangDriver
+      .def(py::init<CD::ProgrammingLanguage, CD::OptimizationLevel,
+                    std::vector<std::tuple<std::string, CD::IncludeDirType>>,
+                    std::vector<std::string>>())
       .def("addIncludeDir", &CD::addIncludeDir)
       .def("removeIncludeDir", &CD::removeIncludeDir);
 
@@ -121,8 +120,7 @@ void registerClangExtractor(py::module m_parent) {
       .def("accept", &cg::ExtractionInfo::accept)
       .def_readonly("functionInfos", &cg::ExtractionInfo::functionInfos);
 
-  py::class_<cg::DeclInfo, std::shared_ptr<cg::DeclInfo>>(m_graph,
-                                                          "DeclInfo")
+  py::class_<cg::DeclInfo, std::shared_ptr<cg::DeclInfo>>(m_graph, "DeclInfo")
       .def_readonly("name", &cg::DeclInfo::name)
       .def_readonly("type", &cg::DeclInfo::type);
 
@@ -131,18 +129,17 @@ void registerClangExtractor(py::module m_parent) {
       .def("accept", &cg::FunctionInfo::accept)
       .def_readonly("name", &cg::FunctionInfo::name)
       .def_readonly("type", &cg::FunctionInfo::type)
-          .def_readonly("args", &cg::FunctionInfo::args)
-          .def_readonly("cfgBlocks", &cg::FunctionInfo::cfgBlocks)
+      .def_readonly("args", &cg::FunctionInfo::args)
+      .def_readonly("cfgBlocks", &cg::FunctionInfo::cfgBlocks)
       .def_readonly("entryStmt", &cg::FunctionInfo::entryStmt);
 
-    py::class_<cg::CFGBlockInfo, std::shared_ptr<cg::CFGBlockInfo>>(
-            m_graph, "CFGBlockInfo")
-            .def_readonly("name", &cg::CFGBlockInfo::name)
-            .def_readonly("statements", &cg::CFGBlockInfo::statements)
-            .def_readonly("successors", &cg::CFGBlockInfo::successors);
+  py::class_<cg::CFGBlockInfo, std::shared_ptr<cg::CFGBlockInfo>>(
+      m_graph, "CFGBlockInfo")
+      .def_readonly("name", &cg::CFGBlockInfo::name)
+      .def_readonly("statements", &cg::CFGBlockInfo::statements)
+      .def_readonly("successors", &cg::CFGBlockInfo::successors);
 
-  py::class_<cg::StmtInfo, std::shared_ptr<cg::StmtInfo>>(m_graph,
-                                                          "StmtInfo")
+  py::class_<cg::StmtInfo, std::shared_ptr<cg::StmtInfo>>(m_graph, "StmtInfo")
       .def_readonly("name", &cg::StmtInfo::name)
       .def_readonly("ast_relations", &cg::StmtInfo::ast_relations)
       .def_readonly("ref_relations", &cg::StmtInfo::ref_relations);
@@ -161,8 +158,7 @@ void registerClangExtractor(py::module m_parent) {
       .def_readonly("name", &cs::FunctionInfo::name)
       .def_readonly("tokenInfos", &cs::FunctionInfo::tokenInfos);
 
-  py::class_<cs::TokenInfo, std::shared_ptr<cs::TokenInfo>>(
-      m_seq, "TokenInfo")
+  py::class_<cs::TokenInfo, std::shared_ptr<cs::TokenInfo>>(m_seq, "TokenInfo")
       .def_readonly("name", &cs::TokenInfo::name)
       .def_readonly("kind", &cs::TokenInfo::kind);
 }
@@ -227,7 +223,8 @@ void registerLLVMExtractor(py::module m_parent) {
       .def_readonly("name", &lg::ArgInfo::name)
       .def_readonly("type", &lg::ArgInfo::type);
 
-  py::class_<lg::ConstantInfo, std::shared_ptr<lg::ConstantInfo>>(m_graph, "ConstantInfo")
+  py::class_<lg::ConstantInfo, std::shared_ptr<lg::ConstantInfo>>(
+      m_graph, "ConstantInfo")
       .def_readonly("type", &lg::ConstantInfo::type);
 
   // Sequence extractor
@@ -257,8 +254,7 @@ void registerLLVMExtractor(py::module m_parent) {
 }
 
 PYBIND11_MODULE(extractors, m) {
-  py::class_<IVisitor, PyVisitor>(m, "Visitor")
-    .def(py::init<>());
+  py::class_<IVisitor, PyVisitor>(m, "Visitor").def(py::init<>());
 
   registerClangDriver(m);
 

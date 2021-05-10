@@ -8,8 +8,9 @@
 #include "clang/AST/ExternalASTSource.h"
 #include "clang/AST/RecursiveASTVisitor.h"
 #include "clang/Frontend/FrontendActions.h"
-#include "clang_extractor.h"
 #include "llvm/ADT/StringRef.h"
+
+#include "clang_extractor.h"
 
 namespace compy {
 namespace clang {

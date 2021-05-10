@@ -7,6 +7,7 @@
 #include "clang/Lex/PreprocessorOptions.h"
 #include "llvm/LinkAllPasses.h"
 #include "llvm/Support/Compiler.h"
+
 #include "llvm_graph_pass.h"
 #include "llvm_seq_pass.h"
 
@@ -25,7 +26,7 @@ graph::ExtractionInfoPtr LLVMIRExtractor::GraphFromString(std::string src) {
 
   passes.push_back(createStripSymbolsPass());
 
-  graph::ExtractorPass* extractorPass = new graph::ExtractorPass();
+  graph::ExtractorPass *extractorPass = new graph::ExtractorPass();
   passes.push_back(extractorPass);
 
   clangDriver_->Invoke(src, frontendActions, passes);

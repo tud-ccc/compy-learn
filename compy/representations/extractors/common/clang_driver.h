@@ -37,7 +37,8 @@ class ClangDriver {
   void removeIncludeDir(std::string includeDir, IncludeDirType includeDirType);
   void setOptimizationLevel(OptimizationLevel optimizationLevel);
 
-  void Invoke(std::string src, std::vector<::clang::FrontendAction *> frontendActions,
+  void Invoke(std::string src,
+              std::vector<::clang::FrontendAction *> frontendActions,
               std::vector<::llvm::Pass *> passes);
 
  private:

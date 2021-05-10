@@ -1,8 +1,8 @@
-#include <string>
+#include "clang_extractor.h"
+
 #include <fstream>
 #include <streambuf>
-
-#include "clang_extractor.h"
+#include <string>
 
 #include "common/clang_driver.h"
 #include "common/common_test.h"
@@ -49,17 +49,17 @@ class ClangExtractorCPlusPlusFixture : public ClangExtractorFixture {
   void SetUp() override { Init(CD::ProgrammingLanguage::CPLUSPLUS); }
 };
 
-//TEST_F(ClangExtractorCFixture, ExtractGraphFromFunction5) {
+// TEST_F(ClangExtractorCFixture, ExtractGraphFromFunction5) {
 //  graph::ExtractionInfoPtr info = extractor_->GraphFromString(kProgram5);
 //
 //  ASSERT_EQ(info->functionInfos.size(), 2UL);
 //}
 //
-//TEST_F(ClangExtractorCFixture, ExtractSeqFromFunction5) {
+// TEST_F(ClangExtractorCFixture, ExtractSeqFromFunction5) {
 //  seq::ExtractionInfoPtr info = extractor_->SeqFromString(kProgram5);
 //}
 //
-//TEST(O, WithOpenCL) {
+// TEST(O, WithOpenCL) {
 //  std::shared_ptr<CD> driver_;
 //  std::shared_ptr<CE> extractor_;
 //
@@ -78,7 +78,8 @@ class ClangExtractorCPlusPlusFixture : public ClangExtractorFixture {
 //                                compilerFlags));
 //  extractor_.reset(new CE(driver_));
 //
-//  std::ifstream t("/devel/git/research/code_graphs/eval/datasets/devmap/data/rodinia-3.1/opencl/leukocyte/OpenCL/track_ellipse_kernel_opt.cl");
+//  std::ifstream
+//  t("/devel/git/research/code_graphs/eval/datasets/devmap/data/rodinia-3.1/opencl/leukocyte/OpenCL/track_ellipse_kernel_opt.cl");
 //  std::string str((std::istreambuf_iterator<char>(t)),
 //                  std::istreambuf_iterator<char>());
 //  str = "#include \"/devel/git/gnns4code/c/3rd_party/opencl-shim.h\"\n" + str;

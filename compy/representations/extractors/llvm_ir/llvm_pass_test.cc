@@ -1,4 +1,3 @@
-#include "gtest/gtest.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IRReader/IRReader.h"
@@ -6,10 +5,11 @@
 #include "llvm/Support/PrettyStackTrace.h"
 #include "llvm/Support/Signals.h"
 #include "llvm/Support/SourceMgr.h"
-#include "llvm_graph_pass.h"
-#include "llvm_seq_pass.h"
 
 #include "common/common_test.h"
+#include "gtest/gtest.h"
+#include "llvm_graph_pass.h"
+#include "llvm_seq_pass.h"
 
 using namespace llvm;
 using namespace compy;
