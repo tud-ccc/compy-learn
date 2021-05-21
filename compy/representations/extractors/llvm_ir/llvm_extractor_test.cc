@@ -6,6 +6,9 @@
 #include "common/common_test.h"
 #include "gtest/gtest.h"
 
+#define TO_STRING(prefix) #prefix
+#define COMPILER_BINARY(prefix) TO_STRING(prefix) "/bin/clang"
+
 using namespace ::llvm;
 using namespace compy;
 using namespace compy::llvm;
@@ -26,19 +29,13 @@ class LLVMExtractorFixture : public testing::Test {
  protected:
   void Init(CD::ProgrammingLanguage programmingLanguage) {
     // Init extractor
-    std::vector<std::tuple<std::string, CD::IncludeDirType>> includeDirs = {
-        std::make_tuple("/usr/include", CD::IncludeDirType::SYSTEM),
-        std::make_tuple("/usr/include/x86_64-linux-gnu",
-                        CD::IncludeDirType::SYSTEM),
-        std::make_tuple("/usr/lib/llvm-10/lib/clang/10.0.0/include",
-                        CD::IncludeDirType::SYSTEM),
-        std::make_tuple("/usr/lib/llvm-10/lib/clang/10.0.1/include",
-                        CD::IncludeDirType::SYSTEM)};
+    std::vector<std::tuple<std::string, CD::IncludeDirType>> includeDirs = {};
     std::vector<std::string> compilerFlags = {"-Werror"};
 
     driver_.reset(new ClangDriver(programmingLanguage,
                                   CD::OptimizationLevel::O0, includeDirs,
                                   compilerFlags));
+    driver_->setCompilerBinary(COMPILER_BINARY(CLANG_INSTALL_PREFIX));
     extractor_.reset(new LE(driver_));
   }
 

@@ -34,7 +34,7 @@ for builder, visitor, model in combinations:
         ClangDriver.ProgrammingLanguage.OpenCL,
         ClangDriver.OptimizationLevel.O3,
         [(x, ClangDriver.IncludeDirType.User) for x in dataset.additional_include_dirs],
-        ["-xcl"],
+        ["-xcl", "-target", "x86_64-pc-linux-gnu"],
     )
     data = dataset.preprocess(builder(clang_driver), visitor)
 

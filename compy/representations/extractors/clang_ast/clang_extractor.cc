@@ -21,13 +21,12 @@ ClangExtractor::ClangExtractor(ClangDriverPtr clangDriver)
     : clangDriver_(clangDriver) {}
 
 graph::ExtractionInfoPtr ClangExtractor::GraphFromString(std::string src) {
-  compy::clang::graph::ExtractorFrontendAction *fa =
-      new compy::clang::graph::ExtractorFrontendAction();
+  auto fa = std::make_unique<compy::clang::graph::ExtractorFrontendAction>();
 
   std::vector<::clang::FrontendAction *> frontendActions;
   std::vector<::llvm::Pass *> passes;
 
-  frontendActions.push_back(fa);
+  frontendActions.push_back(fa.get());
 
   clangDriver_->Invoke(src, frontendActions, passes);
 
@@ -35,13 +34,12 @@ graph::ExtractionInfoPtr ClangExtractor::GraphFromString(std::string src) {
 }
 
 seq::ExtractionInfoPtr ClangExtractor::SeqFromString(std::string src) {
-  compy::clang::seq::ExtractorFrontendAction *fa =
-      new compy::clang::seq::ExtractorFrontendAction();
+  auto fa = std::make_unique<compy::clang::seq::ExtractorFrontendAction>();
 
   std::vector<::clang::FrontendAction *> frontendActions;
   std::vector<::llvm::Pass *> passes;
 
-  frontendActions.push_back(fa);
+  frontendActions.push_back(fa.get());
 
   clangDriver_->Invoke(src, frontendActions, passes);
 

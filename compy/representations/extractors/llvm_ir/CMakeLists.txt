@@ -27,3 +27,6 @@ target_link_libraries(llvm_extractor_tests
 target_compile_options(llvm_extractor_tests PRIVATE
         -fno-rtti -fPIC
         )
+target_compile_definitions(llvm_extractor_tests PRIVATE
+        CLANG_INSTALL_PREFIX=${CLANG_INSTALL_PREFIX}
+        )

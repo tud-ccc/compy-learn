@@ -53,10 +53,22 @@ ClangDriver::ClangDriver(
     OptimizationLevel optimizationLevel,
     std::vector<std::tuple<std::string, IncludeDirType>> includeDirs,
     std::vector<std::string> compilerFlags)
-    : programmingLanguage_(programmingLanguage),
-      optimizationLevel_(optimizationLevel),
+    : optimizationLevel_(optimizationLevel),
       includeDirs_(includeDirs),
-      compilerFlags_(compilerFlags) {}
+      compilerFlags_(compilerFlags),
+      compilerBinary_("clang") {
+  switch (programmingLanguage) {
+    case ProgrammingLanguage::C:
+      fileName_ = "program.c";
+      break;
+    case ProgrammingLanguage::CPLUSPLUS:
+      fileName_ = "program.cc";
+      break;
+    case ProgrammingLanguage::OPENCL:
+      fileName_ = "program.cl";
+      break;
+  }
+}
 
 void ClangDriver::addIncludeDir(std::string includeDir,
                                 IncludeDirType includeDirType) {
@@ -75,24 +87,27 @@ void ClangDriver::setOptimizationLevel(OptimizationLevel optimizationLevel) {
   optimizationLevel_ = optimizationLevel;
 }
 
+void ClangDriver::setFileName(std::string fileName) {
+  fileName_ = std::move(fileName);
+}
+
+std::string ClangDriver::getFileName() const { return fileName_; }
+
+void ClangDriver::setCompilerBinary(std::string path) {
+  compilerBinary_ = std::move(path);
+}
+
+std::string ClangDriver::getCompilerBinary() const { return compilerBinary_; }
+
 void ClangDriver::Invoke(std::string src,
                          std::vector<::clang::FrontendAction *> frontendActions,
                          std::vector<::llvm::Pass *> passes) {
-  const char *filename;
-  switch (programmingLanguage_) {
-    case ProgrammingLanguage::C:
-      filename = "program.c";
-      break;
-    case ProgrammingLanguage::CPLUSPLUS:
-      filename = "program.cc";
-      break;
-    case ProgrammingLanguage::OPENCL:
-      filename = "program.cl";
-      break;
-  }
+  const char *filename = fileName_.c_str();
+
   auto code = src.c_str();
 
   std::vector<const char *> args;
+  args.push_back(compilerBinary_.c_str());
   args.push_back(filename);
 
   // Optimization level.
@@ -136,11 +151,24 @@ void ClangDriver::Invoke(std::string src,
   // well formed diagnostic object.
   IntrusiveRefCntPtr<DiagnosticOptions> DiagOpts = new DiagnosticOptions();
   TextDiagnosticBuffer *DiagsBuffer = new TextDiagnosticBuffer;
-  DiagnosticsEngine Diags(DiagID, &*DiagOpts, DiagsBuffer);
+  IntrusiveRefCntPtr<DiagnosticsEngine> Diags =
+      new DiagnosticsEngine(DiagID, &*DiagOpts, DiagsBuffer);
 
   // Initialize CompilerInvocation.
-  CompilerInvocation::CreateFromArgs(Clang->getInvocation(),
-                                     ArrayRef<const char *>(args), Diags);
+  const std::shared_ptr<CompilerInvocation> invocation =
+      createInvocationFromCommandLine(ArrayRef<const char *>(args), Diags,
+                                      nullptr, true);
+  if (!invocation) {
+    for (auto I = DiagsBuffer->err_begin(), E = DiagsBuffer->err_end(); I != E;
+         ++I)
+      std::cout << "# " << I->second << '\n';
+    throw std::runtime_error("Failed parsing compilation arguments");
+  }
+
+  // We should not leak memory
+  invocation->getFrontendOpts().DisableFree = 0;
+
+  Clang->setInvocation(invocation);
 
   // Map code filename to a memoryBuffer.
   StringRef codeData(code);
@@ -183,7 +211,6 @@ void ClangDriver::Invoke(std::string src,
                                                 E = DiagsBuffer->err_end();
            I != E; ++I)
         std::cout << "# " << I->second << '\n';
-
       throw std::runtime_error("Failed compiling to execute frontend action");
     }
   }

@@ -279,7 +279,7 @@ def test_llvm_seq_functions_have_signature_and_names(llvm_extractor_fixture):
     fn = info.functionInfos[0]
 
     assert fn.name == "foo"
-    assert fn.signature == ["define ", "i", "32", " ", "@", "foo", "(", ")", " #", "0"]
+    assert fn.signature == ["define ", "dso_local ", "i", "32", " ", "@", "foo", "(", ")", " #", "0"]
 
 
 # Seq tests: Basicblocks
@@ -319,7 +319,8 @@ def get_statements_with_name(stmt, name):
     for child in stmt.ast_relations:
         if child.name == name:
             ret += [child]
-        ret += get_statements_with_name(child, name)
+        if hasattr(child, 'ast_relations'):
+            ret += get_statements_with_name(child, name)
 
     return ret
 

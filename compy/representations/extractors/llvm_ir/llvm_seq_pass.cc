@@ -168,7 +168,7 @@ bool ExtractorPass::runOnModule(::llvm::Module &module) {
     F.print(TokenStream, tokenAnnotator.get());
 
     FunctionInfoPtr functionInfo = infoBuilder->getInfo();
-    functionInfo->name = F.getName();
+    functionInfo->name = F.getName().str();
     functionInfo->str = TokenStream.getStr();
     info->functionInfos.push_back(functionInfo);
   }
