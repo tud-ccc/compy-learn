@@ -59,7 +59,7 @@ class CMakeBuild(build_ext):
         build_args = ["--config", cfg]
 
         cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
-        build_args += ["--", "-j8"]
+        build_args += ["--", "-j" + os.environ.get("COMPY_BUILD_JOBS", '8')]
 
         print(" ".join(cmake_args))
 
