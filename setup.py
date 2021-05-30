@@ -10,6 +10,7 @@ from distutils.version import LooseVersion
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 from shutil import copyfile, copymode
+from pathlib import Path
 
 install_requires = [
     "appdirs",
@@ -53,6 +54,8 @@ class CMakeBuild(build_ext):
             self.build_extension(ext)
 
     def build_extension(self, ext):
+        self.dist_folder = Path(self.get_ext_fullpath(ext.name)).parent.absolute()
+
         cmake_args = ["-DPYTHON_EXECUTABLE=" + sys.executable]
 
         cfg = "Debug" if self.debug else "Release"
@@ -103,6 +106,11 @@ class CMakeBuild(build_ext):
         print("copying {} -> {}".format(src_file, dest_file))
         copyfile(src_file, dest_file)
         copymode(src_file, dest_file)
+
+        dest_dist = os.path.join(self.dist_folder, dest_file)
+        os.makedirs(os.path.dirname(dest_dist), exist_ok=True)
+        copyfile(src_file, dest_dist)
+        copymode(src_file, dest_dist)
 
     def copy_test_file(self, src_file):
         """
