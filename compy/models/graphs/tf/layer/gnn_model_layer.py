@@ -99,6 +99,7 @@ class GGNNModelLayer(PropagationModelLayer):
         edge_targets = tf.concat(edge_targets, axis=0)  # [M]
 
         # Propagate
+        embeddings = [embeddings]
         for step in range(self.config["num_timesteps"]):
             messages = []  # list of tensors of messages of shape [e, h]
             message_source_states = (
