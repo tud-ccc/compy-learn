@@ -89,6 +89,7 @@ class Graph(object):
     def __init__(self, graph, node_types, edge_types):
         self.G = graph
         self.__node_types = node_types
+        self.__node_types_dict = {n: i for i, n in enumerate(node_types)}
         self.__edge_types = edge_types
 
     def _get_node_attr_dict(self):
@@ -101,20 +102,20 @@ class Graph(object):
 
     def get_node_list(self):
         node_strs = list(self._get_node_attr_dict().values())
-        node_ints = [self.__node_types.index(node_str) for node_str in node_strs]
+        node_ints = [self.__node_types_dict[node_str] for node_str in node_strs]
 
         return node_ints
 
     def get_edge_list(self):
-        nodes_keys = list(self._get_node_attr_dict().keys())
+        nodes_keys = {n: i for i, n in enumerate(self._get_node_attr_dict().keys())}
 
         edges = []
         for node1, node2, data in self.G.edges(data=True):
             edges.append(
                 (
-                    nodes_keys.index(node1),
+                    nodes_keys[node1],
                     self.__edge_types.index(data["attr"]),
-                    nodes_keys.index(node2),
+                    nodes_keys[node2],
                 )
             )
 
