@@ -3,7 +3,7 @@
 </p>
 
 # ComPy-Learn
-[![Build Status](https://travis-ci.com/tud-ccc/compy-learn.svg?branch=master)](https://travis-ci.com/tud-ccc/compy-learn)
+[![Build Status](https://app.travis-ci.com/tud-ccc/compy-learn.svg?branch=master)](https://app.travis-ci.com/tud-ccc/compy-learn)
 [![codecov](https://codecov.io/gh/tud-ccc/compy-learn/branch/master/graph/badge.svg)](https://codecov.io/gh/tud-ccc/compy-learn)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -39,9 +39,9 @@ We supply an installation script that automates the build, test, and installatio
 
 Platform | Build status
 --- | ---
-Ubuntu 16.04 | [![Build Status](https://travis-ci.com/alexanderb14/compy-learn.svg?token=Lum2bkerAR5BTxUJcYpE&branch=master)](https://travis-ci.com/tud-ccc/compy-learn)
-Ubuntu 18.04 | [![Build Status](https://travis-ci.com/alexanderb14/compy-learn.svg?token=Lum2bkerAR5BTxUJcYpE&branch=master)](https://travis-ci.com/tud-ccc/compy-learn)
-Ubuntu 20.04 | [![Build Status](https://travis-ci.com/alexanderb14/compy-learn.svg?token=Lum2bkerAR5BTxUJcYpE&branch=master)](https://travis-ci.com/tud-ccc/compy-learn)
+Ubuntu 16.04 | [![Build Status](https://app.travis-ci.com/tud-ccc/compy-learn.svg?branch=master)](https://app.travis-ci.com/tud-ccc/compy-learn)
+Ubuntu 18.04 | [![Build Status](https://app.travis-ci.com/tud-ccc/compy-learn.svg?branch=master)](https://app.travis-ci.com/tud-ccc/compy-learn)
+Ubuntu 20.04 | [![Build Status](https://app.travis-ci.com/tud-ccc/compy-learn.svg?branch=master)](https://app.travis-ci.com/tud-ccc/compy-learn)
 
 To get started on one of the supported platforms, we suggest to first create a virtual environment, then run:
 ```
