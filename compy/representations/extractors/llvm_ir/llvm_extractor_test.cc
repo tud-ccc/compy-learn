@@ -53,6 +53,11 @@ class LLVMExtractorCPlusPlusFixture : public LLVMExtractorFixture {
   void SetUp() override { Init(CD::ProgrammingLanguage::CPLUSPLUS); }
 };
 
+class LLVMExtractorLLVMFixture : public LLVMExtractorFixture {
+ protected:
+  void SetUp() override { Init(CD::ProgrammingLanguage::LLVM); }
+};
+
 // C tests
 TEST_F(LLVMExtractorCFixture, ExtractFromFunction1) {
   graph::ExtractionInfoPtr info = extractor_->GraphFromString(kProgram1);
@@ -165,4 +170,13 @@ TEST_F(LLVMExtractorCPlusPlusFixture, ExtractFromFunctionWithUserInclude) {
 
   ASSERT_EQ(info->functionInfos.size(), 1UL);
   ASSERT_EQ(info->functionInfos[0]->args.size(), 0UL);
+}
+
+// LLVM tests
+TEST_F(LLVMExtractorLLVMFixture, ExtractFromFunction1) {
+  graph::ExtractionInfoPtr info = extractor_->GraphFromString(kLLVM1);
+
+  ASSERT_EQ(info->functionInfos.size(), 1UL);
+  ASSERT_EQ(info->functionInfos[0]->name, "A");
+  ASSERT_EQ(info->functionInfos[0]->args.size(), 1UL);
 }
