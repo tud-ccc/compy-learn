@@ -16,6 +16,7 @@
 #include "clang/Lex/PreprocessorOptions.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
+#include "llvm/IRReader/IRReader.h"
 #include "llvm/InitializePasses.h"
 #include "llvm/LinkAllPasses.h"
 #include "llvm/Support/Compiler.h"
@@ -53,11 +54,12 @@ ClangDriver::ClangDriver(
     OptimizationLevel optimizationLevel,
     std::vector<std::tuple<std::string, IncludeDirType>> includeDirs,
     std::vector<std::string> compilerFlags)
-    : optimizationLevel_(optimizationLevel),
+    : programmingLanguage_(programmingLanguage),
+      optimizationLevel_(optimizationLevel),
       includeDirs_(includeDirs),
       compilerFlags_(compilerFlags),
       compilerBinary_("clang") {
-  switch (programmingLanguage) {
+  switch (programmingLanguage_) {
     case ProgrammingLanguage::C:
       fileName_ = "program.c";
       break;
@@ -66,6 +68,9 @@ ClangDriver::ClangDriver(
       break;
     case ProgrammingLanguage::OPENCL:
       fileName_ = "program.cl";
+      break;
+    case ProgrammingLanguage::LLVM:
+      fileName_ = "";
       break;
   }
 }
@@ -102,6 +107,22 @@ std::string ClangDriver::getCompilerBinary() const { return compilerBinary_; }
 void ClangDriver::Invoke(std::string src,
                          std::vector<::clang::FrontendAction *> frontendActions,
                          std::vector<::llvm::Pass *> passes) {
+
+  switch (programmingLanguage_) {
+    case ProgrammingLanguage::C:
+    case ProgrammingLanguage::CPLUSPLUS:
+    case ProgrammingLanguage::OPENCL:
+      InvokeClangAndLLVM(src, frontendActions, passes);
+      break;
+    case ProgrammingLanguage::LLVM:
+      InvokeLLVM(src, passes);
+      break;
+  }
+}
+
+void ClangDriver::InvokeClangAndLLVM(std::string& src,
+                                     std::vector<::clang::FrontendAction *>& frontendActions,
+                                     std::vector<::llvm::Pass *>& passes) {
   const char *filename = fileName_.c_str();
 
   auto code = src.c_str();
@@ -229,23 +250,42 @@ void ClangDriver::Invoke(std::string src,
     }
     std::unique_ptr<::llvm::Module> Module = Act->takeModule();
 
-    ::llvm::remove_fatal_error_handler();
-
-    // Register other llvm passes.
-    PassRegistry &reg = *PassRegistry::getPassRegistry();
-    initializeCallGraphWrapperPassPass(reg);
-    initializeMemorySSAWrapperPassPass(reg);
-    initializeStripSymbolsPass(reg);
-
-    // Setup the pass manager and add passes.
-    pm_.reset(new legacy::PassManager());
-    for (auto pass : passes) {
-      pm_->add(pass);
-    }
-
-    // Run passes.
-    pm_->run(*Module);
+    this->runLLVMPasses(std::move(Module), passes);
   }
+}
+
+void ClangDriver::InvokeLLVM(std::string& src,
+                         std::vector<::llvm::Pass *>& passes) {
+
+  SMDiagnostic err;
+  LLVMContext context;
+  MemoryBufferRef mb = MemoryBuffer::getMemBuffer(src)->getMemBufferRef();
+  std::unique_ptr<::llvm::Module> Module = ::llvm::parseIR(mb, err, context);
+  if (!Module) {
+    throw std::runtime_error("Failed compiling to LLVM module");
+  }
+
+  this->runLLVMPasses(std::move(Module), passes);
+}
+
+void ClangDriver::runLLVMPasses(std::unique_ptr<::llvm::Module> Module,
+                                std::vector<::llvm::Pass *>& passes) {
+  ::llvm::remove_fatal_error_handler();
+
+  // Register other llvm passes.
+  PassRegistry &reg = *PassRegistry::getPassRegistry();
+  initializeCallGraphWrapperPassPass(reg);
+  initializeMemorySSAWrapperPassPass(reg);
+  initializeStripSymbolsPass(reg);
+
+  // Setup the pass manager and add passes.
+  pm_.reset(new legacy::PassManager());
+  for (auto pass : passes) {
+    pm_->add(pass);
+  }
+
+  // Run passes.
+  pm_->run(*Module);
 }
 
 }  // namespace compy

@@ -91,6 +91,7 @@ void registerClangDriver(py::module m) {
       .value("C", CD::ProgrammingLanguage::C)
       .value("CPlusPlus", CD::ProgrammingLanguage::CPLUSPLUS)
       .value("OpenCL", CD::ProgrammingLanguage::OPENCL)
+      .value("LLVM", CD::ProgrammingLanguage::LLVM)
       .export_values();
 
   py::enum_<CD::OptimizationLevel>(clangDriver, "OptimizationLevel")

@@ -18,6 +18,7 @@ class ClangDriver {
     C = 0,
     CPLUSPLUS = 1,
     OPENCL = 3,
+    LLVM = 4,
   };
 
   enum OptimizationLevel { O0 = 0, O1 = 1, O2 = 2, O3 = 3 };
@@ -46,8 +47,18 @@ class ClangDriver {
               std::vector<::llvm::Pass *> passes);
 
  private:
+  void InvokeClangAndLLVM(std::string& src,
+                          std::vector<::clang::FrontendAction *>& frontendActions,
+                          std::vector<::llvm::Pass *>& passes);
+  void InvokeLLVM(std::string& src,
+                  std::vector<::llvm::Pass *>& passes);
+  void runLLVMPasses(std::unique_ptr<::llvm::Module> Module,
+                     std::vector<::llvm::Pass *>& passes);
+
+ private:
   std::shared_ptr<::llvm::legacy::PassManager> pm_;
 
+  ProgrammingLanguage programmingLanguage_;
   OptimizationLevel optimizationLevel_;
   std::vector<std::tuple<std::string, IncludeDirType>> includeDirs_;
   std::vector<std::string> compilerFlags_;
