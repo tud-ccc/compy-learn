@@ -7,6 +7,17 @@ from compy.representations.extractors.extractors import LLVMIRExtractor
 from compy.representations.extractors.extractors import llvm
 from compy.representations import common
 
+def add_missing_call_edges(visitor):
+    for instruction, call in visitor.calls.items():
+        called_function = (
+            visitor.functions[call]
+            if call in visitor.functions
+            else None
+        )
+        if called_function:
+            visitor.G.add_edge(instruction, called_function.entryInstruction, attr="call")
+            for exit in called_function.exitInstructions:
+                visitor.G.add_edge(exit, instruction, attr="call")
 
 class LLVMCDFGVisitor(Visitor):
     def __init__(self):
@@ -56,6 +67,7 @@ class LLVMCDFGCallVisitor(Visitor):
         self.edge_types = ["cfg", "data", "mem", "call"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
+        self.calls = {}
 
     def visit(self, v):
         if isinstance(v, llvm.graph.FunctionInfo):
@@ -104,6 +116,8 @@ class LLVMCDFGCallVisitor(Visitor):
                     self.G.add_edge(v, called_function.entryInstruction, attr="call")
                     for exit in called_function.exitInstructions:
                         self.G.add_edge(exit, v, attr="call")
+                else:
+                    self.calls[v] = v.callTarget
 
             # Operands.
             for operand in v.operands:
@@ -118,9 +132,13 @@ class LLVMCDFGPlusVisitor(Visitor):
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem", "call", "bb"]
         self.G = nx.MultiDiGraph()
-
+        self.functions = {}
+        self.calls = {}
+    
     def visit(self, v):
         if isinstance(v, llvm.graph.FunctionInfo):
+            self.functions[v.name] = v
+            
             # Function root node.
             self.G.add_node(v, attr="function")
             self.G.add_edge(v, v.entryInstruction, attr="cfg")
@@ -159,6 +177,23 @@ class LLVMCDFGPlusVisitor(Visitor):
             # Instruction nodes.
             self.G.add_node(v, attr=(v.opcode))
 
+            # Call edges.
+            if v.opcode == "ret":
+                self.G.add_edge(v, v.function, attr="call")
+                
+            if v.opcode == "call":
+                called_function = (
+                    self.functions[v.callTarget]
+                    if v.callTarget in self.functions
+                    else None
+                )
+                if called_function:
+                    self.G.add_edge(v, called_function.entryInstruction, attr="call")
+                    for exit in called_function.exitInstructions:
+                        self.G.add_edge(exit, v, attr="call")
+                else:
+                    self.calls[v] = v.callTarget
+
             # Operands.
             for operand in v.operands:
                 if isinstance(operand, llvm.graph.ArgInfo) or isinstance(
@@ -173,6 +208,7 @@ class LLVMProGraMLVisitor(Visitor):
         self.edge_types = ["cfg", "data", "call"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
+        self.calls = {}
 
     def visit(self, v):
         if isinstance(v, llvm.graph.FunctionInfo):
@@ -214,6 +250,8 @@ class LLVMProGraMLVisitor(Visitor):
                     self.G.add_edge(v, called_function.entryInstruction, attr="call")
                     for exit in called_function.exitInstructions:
                         self.G.add_edge(exit, v, attr="call")
+                else:
+                    self.calls[v] = v.callTarget
 
             # Operands.
             for operand in v.operands:
@@ -251,6 +289,9 @@ class LLVMGraphBuilder(common.RepresentationBuilder):
         vis = visitor()
         info.accept(vis)
 
+        if 'calls' in vis.__dict__:
+            add_missing_call_edges(vis)
+            
         for (n, data) in vis.G.nodes(data=True):
             attr = data["attr"]
             if attr not in self._tokens:

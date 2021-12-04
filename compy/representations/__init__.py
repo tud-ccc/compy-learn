@@ -1,6 +1,6 @@
 from .common import RepresentationBuilder, Sequence, Graph
 from .extractors import *
-from .ast_graphs import ASTVisitor, ASTDataVisitor, ASTDataCFGVisitor, ASTGraphBuilder
+from .ast_graphs import ASTVisitor, ASTDataVisitor, ASTDataCFGVisitor, ASTDataCFGTokenVisitor, ASTGraphBuilder
 from .llvm_graphs import (
     LLVMCDFGVisitor,
     LLVMCDFGCallVisitor,
