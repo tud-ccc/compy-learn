@@ -113,6 +113,7 @@ struct InstructionInfo : OperandInfo {
   std::string callTarget;
   bool isLoadOrStore;
   std::vector<OperandInfoPtr> operands;
+  BasicBlockInfoPtr basicBlock;
   FunctionInfoPtr function;
 
   void accept(IVisitor* v) override { v->visit(this); }

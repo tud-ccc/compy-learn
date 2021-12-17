@@ -218,7 +218,9 @@ bool FunctionInfoPass::runOnFunction(::llvm::Function &func) {
   for (auto &bb : func.getBasicBlockList()) {
     BasicBlockInfoPtr bbInfo = getInfo(bb);
     for (auto &inst : bb) {
-      bbInfo->instructions.push_back(getInfo(inst));
+      InstructionInfoPtr instInfo = getInfo(inst);
+      instInfo->basicBlock = bbInfo;
+      bbInfo->instructions.push_back(instInfo);
     }
     info_->basicBlocks.push_back(bbInfo);
   }

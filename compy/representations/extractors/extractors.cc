@@ -205,6 +205,7 @@ void registerLLVMExtractor(py::module m_parent) {
       .def_readonly("callTarget", &lg::InstructionInfo::callTarget)
       .def_readonly("isLoadOrStore", &lg::InstructionInfo::isLoadOrStore)
       .def_readonly("operands", &lg::InstructionInfo::operands)
+      .def_readonly("basicBlock", &lg::InstructionInfo::basicBlock)
       .def_readonly("function", &lg::InstructionInfo::function);
 
   py::class_<lg::MemoryAccessInfo, std::shared_ptr<lg::MemoryAccessInfo>>(
